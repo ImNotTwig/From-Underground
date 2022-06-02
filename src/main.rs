@@ -28,11 +28,11 @@ fn main() {
   let mut player_mp = 100;
   let mut player_max_mp  = 100;
   let mut prev_player_mp  = 100;
-  title_screen();
-  scene_0();
-  let (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp)
+  //title_screen();
+  //let name: String = scene_0();
+  (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp) 
     = 
-    scene_1(player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+    scene_1(player_inv.clone(), player_hp.clone(), player_max_hp.clone(), prev_player_hp.clone(), player_mp.clone(), player_max_mp.clone(), prev_player_mp.clone());
   //scene_2();
 }
 
@@ -53,14 +53,19 @@ where
 
 fn check_inv(player_inv: Vec<String>) {
   if player_inv.is_empty() == false {
+    println!("\x1B[2J\x1B[1;1H"); //clears the screen
     println!("Inventory:");
+    let mut a = 1;
     for i in player_inv {
-      println!("{}", i)
+      println!("{}: ,{}", a, i);
+      a += 1;
     }
     println!("");
   }
   else {
+    println!("\x1B[2J\x1B[1;1H"); //clears the screen
     println!("Inventory:");
+    println!("There's nothing here!");
     println!("");
     return
   }
@@ -126,14 +131,14 @@ fn large_hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i
   }
 }
 
-fn room_change(chosen_rooms:Rooms,player_inv:Vec<String>) -> String {
+fn room_change(chosen_rooms:Rooms) -> String {
   let mut direction:String = "".to_string();
   let mut room_title: String = "".to_string(); 
   let north_room = chosen_rooms.north_room;
   let south_room = chosen_rooms.south_room;
   let west_room = chosen_rooms.west_room;
   let east_room = chosen_rooms.east_room;
-  what_fn_to_do(player_inv.clone());
+  
   loop {  
     if north_room != "" {println!("North: {}", north_room);}
     if south_room != "" {println!("South: {}", south_room);}
@@ -195,7 +200,7 @@ fn room_change(chosen_rooms:Rooms,player_inv:Vec<String>) -> String {
   }
 }
 
-fn what_fn_to_do(player_inv: Vec<String>) {
+fn what_fn_to_do(player_inv: Vec<String>, room_title: String) {
   println!("1. Check Inventory 
 2. Continue");
   let what:String = read!();
@@ -204,7 +209,8 @@ fn what_fn_to_do(player_inv: Vec<String>) {
     return
   }
   else {
-    print!("\r");
+    println!("\x1B[2J\x1B[1;1H"); //clears the screen
+    println!("{}", room_title.clone());
     println!("");
   }
 }
@@ -215,7 +221,7 @@ fn title_screen() {
   println!("Welcome to: From Underground, a text adventure");
 }
 
-fn scene_0() {
+fn scene_0() -> String {
   println!("What is your name?");
   let name: String = read!();
   println!("Hello {}, press enter to continue", name);
@@ -263,10 +269,10 @@ it seems like you're in an underground cave.");
     println!("He helps you up and you look around.
 You seem to be in a cave");
   }
-
+  return name.to_string();
 }
 
-fn entrance(player_inv: Vec<String>) -> String {
+fn entrance() -> String {
     println!("Entrance");
     println!("");
     let enterance_rooms = Rooms {
@@ -275,11 +281,11 @@ fn entrance(player_inv: Vec<String>) -> String {
         west_room: "West Hallway".to_string(),
         east_room: "East Hallway".to_string()
       };
-      let room_title = room_change(enterance_rooms, player_inv);
+      let room_title = room_change(enterance_rooms);
       return room_title;
 }
 
-fn east_hallway(player_inv: Vec<String>) -> String {
+fn east_hallway() -> String {
     println!("East Hallway");
     println!("");
     let east_hallway_rooms = Rooms {
@@ -288,11 +294,11 @@ fn east_hallway(player_inv: Vec<String>) -> String {
         west_room: "Return to Entrance".to_string(),
         east_room: "Locked".to_string()
     };
-    let room_title = room_change(east_hallway_rooms, player_inv);
+    let room_title = room_change(east_hallway_rooms);
     return room_title;
 }
 
-fn west_hallway(player_inv: Vec<String>) -> String {
+fn west_hallway() -> String {
     println!("West Hallway");
     println!("");
     let west_hallway_rooms = Rooms {
@@ -301,7 +307,7 @@ fn west_hallway(player_inv: Vec<String>) -> String {
         west_room: "Locked".to_string(),
         east_room: "Return to Entrance".to_string()
     };
-    let room_title = room_change(west_hallway_rooms, player_inv);
+    let room_title = room_change(west_hallway_rooms);
     return room_title;
 }
 
@@ -335,25 +341,33 @@ fn supply_closet(mut items_in_room: i32, mut player_inv: Vec<String>, player_hp:
 
   if item_selection != 0 {
     if items_in_room == 1 { //if only gemstone is showing
+      println!("");
       println!("You picked up some rope");
       player_inv.push("Rope".to_string());
+      println!("");
       items_in_room = 0;
       }
     else if items_in_room == 2 { //if only rope is showing
+      println!("");
       println!("You picked up a gemstone");
       player_inv.push("Gemstone".to_string());
+      println!("");
       items_in_room = 0;
       }
     if items_in_room != 2 {
       if items_in_room != 1 {  
         if items_in_room == 3 { //if all items are in room
           if item_selection == 2 { //Selected Gemstone
+            println!("");
             println!("You picked up a gemstone");
+            println!("");
             player_inv.push("Gemstone".to_string());
             items_in_room = 1; //makes the items vector only show Rope
             }
           if item_selection == 1 { //Selected Rope
+            println!("");
             println!("You picked up some rope");
+            println!("");
             player_inv.push("Rope".to_string());
             items_in_room = 2; //makes the items vector only show Gemstone 
             }
@@ -362,7 +376,7 @@ fn supply_closet(mut items_in_room: i32, mut player_inv: Vec<String>, player_hp:
       }
     }
   } 
-  let room_title = room_change(supply_closet_rooms, player_inv.clone());
+  let room_title = room_change(supply_closet_rooms);
   return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_room);
 }
 
@@ -370,7 +384,7 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
   println!("\x1B[2J\x1B[1;1H"); //clears the screen
   println!(r#""Follow me I'll show you to operations room.""#);
   println!("");
-  let mut room_title = entrance(player_inv.clone());
+  let mut room_title = entrance();
   let mut picked_up_item_from_closet = false;
   let mut items_in_closet = 3;
   let mut closet_room_title: String = "".to_string();
@@ -382,10 +396,12 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
 
     if room_title == "West Hallway" || room_title == "Return to West Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = west_hallway(player_inv.clone());
+      what_fn_to_do(player_inv.clone(), room_title.clone().to_string());
+      room_title = west_hallway();
     }
     if room_title == "Supply Closet" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      what_fn_to_do(player_inv.clone(), room_title.clone().to_string());
       if picked_up_item_from_closet == false {
         items_in_closet = 3;
       }
@@ -425,11 +441,13 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
   
     if room_title == "East Hallway" || room_title == "Return to East Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = east_hallway(player_inv.clone());
+      what_fn_to_do(player_inv.clone(), room_title.clone().to_string());
+      room_title = east_hallway();
     }
     if room_title == "Return to Entrance" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = entrance(player_inv.clone());
+      what_fn_to_do(player_inv.clone(), room_title.clone().to_string());
+      room_title = entrance();
     }
     if room_title == "Kitchen" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
