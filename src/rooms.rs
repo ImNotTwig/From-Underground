@@ -1,3 +1,6 @@
+use crate::Rooms;
+use crate::room_change;
+use text_io::read;
 pub fn entrance() -> String {
     println!("Entrance");
     println!("");
@@ -102,6 +105,6 @@ pub fn supply_closet(mut items_in_room: i32, mut player_inv: Vec<String>, player
       }
     }
   } 
-  let room_title = room_change(supply_closet_rooms);
+  let room_title = room_change(supply_closet_rooms, items, player_inv);
   return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_room);
 }

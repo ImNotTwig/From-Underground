@@ -1,7 +1,15 @@
 use std::io;
 use std::io::prelude::*;
 use text_io::read;
-mod room;
+mod rooms;
+use crate::rooms::east_hallway;
+use crate::rooms::west_hallway;
+use crate::rooms::entrance;
+use crate::rooms::supply_closet;
+mod potions;
+use crate::potions::hp_potion;
+use crate::potions::med_hp_potion;
+use crate::potions::large_hp_potion;
   //I want a title screen
   //I want to start the story 
   //I want multiple rooms to be able to go between
@@ -72,67 +80,9 @@ fn check_inv(player_inv: Vec<String>) {
   }
 }
 
-fn hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Health Potion".to_string()) {
-    if player_hp != player_max_hp {
-      let prev_player_hp = player_hp;
-      let player_hp = player_hp + 25;
-      remove_first(&mut player_inv, |r| r == "Health Potion");
-      return (player_inv, player_hp, prev_player_hp);
-    }
-    else {
-      println!("You have full health!");
-      return (player_inv, player_hp, prev_player_hp);
-    }
-  }
-  else {
-    println!("You don't have any health potions!");
-    return (player_inv, player_hp, prev_player_hp);
-  }
-}
+fn room_change_w_items(chosen_rooms:Rooms, items:Vec<String>, player_inv:Vec<String>
 
-//this is how to use this function, it's the same for every varient
-// let (player_inv, player_hp, prev_player_hp) = hp_potion(player_inv, player_hp, player_max_hp, prev_player_hp);
-
-fn med_hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Medium Health Potion".to_string()) {
-    if player_hp != player_max_hp {
-      let prev_player_hp = player_hp;
-      let player_hp = player_hp + 25;
-      remove_first(&mut player_inv, |r| r == "Medium Health Potion");
-      return (player_inv, player_hp, prev_player_hp);
-    }
-    else {
-      println!("You have full health!");
-      return (player_inv, player_hp, prev_player_hp);
-    }
-  }
-  else {
-    println!("You don't have any medium health potions!");
-    return (player_inv, player_hp, prev_player_hp);
-  }
-}
-
-fn large_hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Large Health Potion".to_string()) {
-    if player_hp != player_max_hp {
-      let prev_player_hp = player_hp;
-      let player_hp = player_hp + 25;
-      remove_first(&mut player_inv, |r| r == "Large Health Potion");
-      return (player_inv, player_hp, prev_player_hp);
-    }
-    else {
-      println!("You have full health!");
-      return (player_inv, player_hp, prev_player_hp);
-    }
-  }
-  else {
-    println!("You don't have any large health potions!");
-    return (player_inv, player_hp, prev_player_hp);
-  }
-}
-
-fn room_change(chosen_rooms:Rooms) -> String {
+fn room_change(chosen_rooms:Rooms, items:Vec<String>, player_inv:Vec<String>) -> String {
   let mut direction:String = "".to_string();
   let mut room_title: String = "".to_string(); 
   let north_room = chosen_rooms.north_room;
@@ -141,6 +91,16 @@ fn room_change(chosen_rooms:Rooms) -> String {
   let east_room = chosen_rooms.east_room;
   
   loop {  
+    println!("Would you like to 1) loot the room 
+or 
+2) leave?");
+    let choice: i32 = read!();
+    if choice = 1 {
+      for i in items {
+        println!("{}", items);
+        
+      }
+    }
     if north_room != "" {println!("North: {}", north_room);}
     if south_room != "" {println!("South: {}", south_room);}
     if west_room != "" {println!("West: {}", west_room);}
@@ -211,7 +171,6 @@ fn what_fn_to_do(player_inv: Vec<String>, room_title: String) {
   }
   else {
     println!("\x1B[2J\x1B[1;1H"); //clears the screen
-    println!("{}", room_title.clone());
     println!("");
   }
 }
