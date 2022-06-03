@@ -1,121 +1,123 @@
 use crate::remove_first;
+use crate::Player;
 
-pub fn hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Health Potion".to_string()) {
-    if player_hp != player_max_hp {
-      let prev_player_hp = player_hp;
-      let player_hp = player_hp + 25;
-      remove_first(&mut player_inv, |r| r == "Health Potion");
-      return (player_inv, player_hp, prev_player_hp);
+pub fn hp_potion(mut player:Player) -> Player {
+  if player.player_inv.contains(&"Health Potion".to_string()) {
+    if player.player_hp != player.player_max_hp {
+      player.prev_player_hp = player.player_hp;
+      player.player_hp = player.player_hp + 25;
+      remove_first(&mut player.player_inv, |r| r == "Health Potion");
+      return player;
     }
     else {
       println!("You have full health!");
-      return (player_inv, player_hp, prev_player_hp);
+      return player;
     }
   }
   else {
     println!("You don't have any health potions!");
-    return (player_inv, player_hp, prev_player_hp);
+    return player;
   }
 }
 
 //this is how to use this function, it's the same for every varient
-// let (player_inv, player_hp, prev_player_hp) = hp_potion(player_inv, player_hp, player_max_hp, prev_player_hp);
+// player = hp_potion(player);
 
-pub fn med_hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Medium Health Potion".to_string()) {
-    if player_hp != player_max_hp {
-      let prev_player_hp = player_hp;
-      let player_hp = player_hp + 25;
-      remove_first(&mut player_inv, |r| r == "Medium Health Potion");
-      return (player_inv, player_hp, prev_player_hp);
+pub fn med_hp_potion(mut player:Player) -> Player {
+  if player.player_inv.contains(&"Medium Health Potion".to_string()) {
+    if player.player_hp != player.player_max_hp {
+      player.prev_player_hp = player.player_hp;
+      player.player_hp = player.player_hp + 50;
+      remove_first(&mut player.player_inv, |r| r == "Medium Health Potion");
+      return player;
     }
     else {
       println!("You have full health!");
-      return (player_inv, player_hp, prev_player_hp);
+      return player;
     }
   }
   else {
     println!("You don't have any medium health potions!");
-    return (player_inv, player_hp, prev_player_hp);
+    return player;
   }
 }
 
-pub fn large_hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Large Health Potion".to_string()) {
-    if player_hp != player_max_hp {
-      let prev_player_hp = player_hp;
-      let player_hp = player_hp + 25;
-      remove_first(&mut player_inv, |r| r == "Large Health Potion");
-      return (player_inv, player_hp, prev_player_hp);
+pub fn large_hp_potion(mut player:Player) -> Player {
+  if player.player_inv.contains(&"Large Health Potion".to_string()) {
+    if player.player_hp != player.player_max_hp {
+      player.prev_player_hp = player.player_hp;
+      player.player_hp = player.player_hp + 75;
+      remove_first(&mut player.player_inv, |r| r == "Large Health Potion");
+      return player;
     }
     else {
       println!("You have full health!");
-      return (player_inv, player_hp, prev_player_hp);
+      return player;
     }
   }
   else {
     println!("You don't have any large health potions!");
-    return (player_inv, player_hp, prev_player_hp);
+    return player;
   }
 }
 
-pub fn mp_potion(mut player_inv: Vec<String>, player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Mana Potion".to_string()) {
-    if player_mp != player_max_mp {
-      let prev_player_mp = player_mp;
-      let player_mp = player_mp + 25;
-      remove_first(&mut player_inv, |r| r == "Mana Potion");
-      return (player_inv, player_mp, prev_player_mp);
+
+pub fn mp_potion(mut player:Player) -> Player {
+  if player.player_inv.contains(&"Mana Potion".to_string()) {
+    if player.player_mp != player.player_max_mp {
+      player.prev_player_mp = player.player_mp;
+      player.player_mp = player.player_mp + 25;
+      remove_first(&mut player.player_inv, |r| r == "Mana Potion");
+      return player;
     }
     else {
       println!("You have full mana!");
-      return (player_inv, player_mp, prev_player_mp);
+      return player;
     }
   }
   else {
     println!("You don't have any mana potions!");
-    return (player_inv, player_mp, prev_player_mp);
+    return player;
   }
 }
 
 //this is how to use this function, it's the same for every varient
-// let (player_inv, player_mp, prev_player_mp) = mp_potion(player_inv, player_mp, player_max_mp, prev_player_mp);
+// player = mp_potion(player);
 
-pub fn med_mp_potion(mut player_inv: Vec<String>, player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"Medium Mana Potion".to_string()) {
-    if player_mp != player_max_mp {
-      let prev_player_mp = player_mp;
-      let player_mp = player_mp + 25;
-      remove_first(&mut player_inv, |r| r == "Medium Mana Potion");
-      return (player_inv, player_mp, prev_player_mp);
+pub fn med_mp_potion(mut player:Player) -> Player {
+  if player.player_inv.contains(&"Medium Mana Potion".to_string()) {
+    if player.player_mp != player.player_max_mp {
+      player.prev_player_mp = player.player_mp;
+      player.player_mp = player.player_mp + 50;
+      remove_first(&mut player.player_inv, |r| r == "Medium Mana Potion");
+      return player;
     }
     else {
       println!("You have full mana!");
-      return (player_inv, player_mp, prev_player_mp);
+      return player;
     }
   }
   else {
     println!("You don't have any medium mana potions!");
-    return (player_inv, player_mp, prev_player_mp);
+    return player;
   }
 }
 
-pub fn large_mp_potion(mut player_inv: Vec<String>, player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
-  if player_inv.contains(&"LargeMana Potion".to_string()) {
-    if player_mp != player_max_mp {
-      let prev_player_mp = player_mp;
-      let player_mp = player_mp + 25;
-      remove_first(&mut player_inv, |r| r == "LargeMana Potion");
-      return (player_inv, player_mp, prev_player_mp);
+pub fn large_mp_potion(mut player:Player) -> Player {
+  if player.player_inv.contains(&"LargeMana Potion".to_string()) {
+    if player.player_mp != player.player_max_mp {
+      player.prev_player_mp = player.player_mp;
+      player.player_mp = player.player_mp + 75;
+      remove_first(&mut player.player_inv, |r| r == "LargeMana Potion");
+      return player;
     }
     else {
       println!("You have full mana!");
-      return (player_inv, player_mp, prev_player_mp);
+      return player;
     }
   }
   else {
     println!("You don't have any large mana potions!");
-    return (player_inv, player_mp, prev_player_mp);
+    return player;
   }
 }

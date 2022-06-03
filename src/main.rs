@@ -1,6 +1,7 @@
 use std::io;
 use std::io::prelude::*;
 use text_io::read;
+use rand::Rng;
 mod potions;
 use crate::potions::hp_potion;
 use crate::potions::med_hp_potion;
@@ -18,29 +19,70 @@ use crate::potions::large_mp_potion;
   //I want some kind of mana/health system [x]
 #[derive(Debug)]
 struct Rooms {
-    north_room: String,
-    south_room: String,
-    west_room: String,
-    east_room: String
+  north_room: String,
+  south_room: String,
+  west_room: String,
+  east_room: String
+}
+struct Opponent {
+  hp: i32,
+  mp: i32,
+  min_atk: i32,
+  max_atk: i32,
+  magic_atks: Vec<String>
+}
+#[derive(Clone)]
+pub struct Player {
+  player_inv: Vec<String>,
+  player_name: String,
+
+  player_hp: i32,
+  player_max_hp: i32,
+  prev_player_hp: i32,
+
+  player_mp: i32,
+  player_max_mp: i32,
+  prev_player_mp: i32,
+
+  player_min_atk: i32,
+  player_max_atk: i32
 }
 
 fn main() {
-  let mut player_inv = vec!("".to_string());
-  player_inv.remove(0);
-  let mut player_hp = 100;
-  let mut player_max_hp  = 100;
-  let mut prev_player_hp  = 100;
-  let mut player_mp = 100;
-  let mut player_max_mp  = 100;
-  let mut prev_player_mp  = 100;
+  let mut level: i32 = 0;
+  let mut player = Player {
+    player_inv: vec!("".to_string()),
+    player_name: "".to_string(),
 
-  title_screen();
-  let name: String = scene_0();
-  (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp) 
-    = 
-    scene_1(player_inv.clone(), player_hp.clone(), player_max_hp.clone(), prev_player_hp.clone(), player_mp.clone(), player_max_mp.clone(), prev_player_mp.clone());
-  //scene_2();
+    player_hp: 50,
+    player_max_hp: 50,
+    prev_player_hp: 50,
+
+    player_mp: 50,
+    player_max_mp: 50,
+    prev_player_mp: 50,
+
+    player_min_atk: 5,
+    player_max_atk: 10
+  };
+  player.player_inv.remove(0);
+  //title_screen();
+  level = 2;
+  loop {
+    if level == 0 {
+      player = scene_0(player);
+      level = 1
+    }
+    if level == 1 {
+      (player, level) = scene_1(player);
+    }
+    if level == 2 {
+      (player, level) = scene_2(player);
+      return
+    }
+  }
 }
+
 
 fn remove_first<T, F>(vec: &mut Vec<T>, mut filter: F)
 where
@@ -57,12 +99,12 @@ where
     });
 }
 
-fn check_inv(mut player_inv: Vec<String>, mut player_hp:i32, mut player_max_hp:i32, mut prev_player_hp:i32, mut player_mp:i32, mut player_max_mp:i32, mut prev_player_mp:i32) {
-  if player_inv.is_empty() == false {
+fn check_inv(mut player: Player) -> Player {
+  if player.player_inv.is_empty() == false {
     println!("\x1B[2J\x1B[1;1H"); //clears the screen
     println!("Inventory:");
     let mut a = 1;
-    for i in player_inv.clone() {
+    for i in player.player_inv.clone() {
       println!("{}: {}", a, i);
       a += 1;
     }
@@ -74,16 +116,12 @@ fn check_inv(mut player_inv: Vec<String>, mut player_hp:i32, mut player_max_hp:i
       println!("Which item?");
       let mut item_choice: usize = read!();
       item_choice -= 1;
-      let item_use_input: String = player_inv[item_choice].clone();
-      (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp) 
-      = item_use(player_inv, 
-        item_use_input, 
-        player_hp,
-        player_max_hp,
-        prev_player_hp, 
-        player_mp, 
-        player_max_mp, 
-        prev_player_mp);
+      let item_use_input: String = player.player_inv[item_choice].clone();
+      player = item_use(player, item_use_input);
+      return player
+    }
+    else {
+      return player
     }
   }
   else {
@@ -91,33 +129,220 @@ fn check_inv(mut player_inv: Vec<String>, mut player_hp:i32, mut player_max_hp:i
     println!("Inventory:");
     println!("There's nothing here!");
     println!("");
-    return
+    return player
   }
 }
 
-fn item_use(mut player_inv:Vec<String>, item:String, mut player_hp:i32, mut player_max_hp:i32, mut prev_player_hp:i32, mut player_mp:i32, mut player_max_mp:i32, mut prev_player_mp:i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32) {
+fn check_inv_fight(mut player: Player) -> (Player, bool) {
+  let used_item = false;
+  if player.player_inv.is_empty() == false {
+    println!("\x1B[2J\x1B[1;1H"); //clears the screen
+    println!("Inventory:");
+    let mut a = 1;
+    for i in player.player_inv.clone() {
+      println!("{}: {}", a, i);
+      a += 1;
+    }
+    println!("");
+    println!("Would you like to use an item? [y/n]");
+    let choice: String = read!();
+    let choice = choice.to_lowercase();
+    if choice == "yes" || choice == "y" {
+      println!("Which item?");
+      let mut item_choice: usize = read!();
+      item_choice -= 1;
+      let item_use_input: String = player.player_inv[item_choice].clone();
+      player = item_use(player, item_use_input);
+      return (player, used_item)
+    }
+    else {
+      return (player, used_item)
+    }
+  }
+  else {
+    println!("\x1B[2J\x1B[1;1H"); //clears the screen
+    println!("Inventory:");
+    println!("There's nothing here!");
+    println!("");
+    return (player, used_item)
+  }
+}
+
+fn item_use(mut player: Player, item: String) -> Player {
   if item == "Health Potion" {
-    (player_inv, player_hp, prev_player_hp) = hp_potion(player_inv.clone(), player_hp, player_max_hp, prev_player_hp);
+    player = hp_potion(player);
   }
   if item == "Medium Health Potion" {
-    (player_inv, player_hp, prev_player_hp) = med_hp_potion(player_inv.clone(), player_hp, player_max_hp, prev_player_hp);
+    player = med_hp_potion(player);
   }
   if item == "Large Health Potion" {
-    (player_inv, player_hp, prev_player_hp) = large_hp_potion(player_inv.clone(), player_hp, player_max_hp, prev_player_hp);
+    player = large_hp_potion(player);
   }
   if item == "Mana Potion" {
-    (player_inv, player_mp, prev_player_mp) = mp_potion(player_inv.clone(), player_mp, player_max_mp, prev_player_mp);
+    player = mp_potion(player);
   }
   if item == "Medium Mana Potion" {
-    (player_inv, player_mp, prev_player_mp) = med_mp_potion(player_inv.clone(), player_mp, player_max_mp, prev_player_mp);
+    player = med_mp_potion(player);
   }
   if item == "Large Health Potion" {
-    (player_inv, player_mp, prev_player_mp) = large_mp_potion(player_inv.clone(), player_mp, player_max_mp, prev_player_mp);
+    player = large_mp_potion(player);
   }
-  return(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+  return player;
 }
 
-fn room_change_w_items(chosen_rooms:Rooms, items:Vec<String>, mut player_inv:Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> (Vec<String>, String, bool) {
+fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
+  let mut used_item = false;
+  let mut turn = "player".to_string();
+  if opponent == "mutant_rat" {
+    let mut mutant_rat = Opponent {
+      hp: 25,
+      mp: 0,
+      min_atk: 4,
+      max_atk: 7,
+      magic_atks: vec!("".to_string())
+    };
+    loop {
+      if turn == "opponent" {
+        let mut random_atk = rand::thread_rng();
+        let rat_atk: i32 = random_atk.gen_range(mutant_rat.min_atk..(mutant_rat.max_atk + 1));
+        println!("The mutant rat attacks you dealing {} damage", rat_atk);
+        player.prev_player_hp = player.player_hp;
+        player.player_hp = player.player_hp - rat_atk; 
+        if player.player_hp < 0 || player.player_hp == 0 {
+          println!("You have 0hp/50hp");
+          println!("You died!");
+          return (player, false);
+        }
+        println!("You have {}hp/{}hp", player.player_hp, player.player_max_hp);
+        println!("");
+        turn = "player".to_string();
+      }
+      if turn == "player" {
+        println!("Do you want to: 
+1) Attack
+2) Use an Item
+3) Run Away");
+        let choice: i32 = read!();
+        println!("");
+        if choice == 1 {
+          let mut random_atk = rand::thread_rng();
+          let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
+          println!("You attack the mutant rat dealing {} damage", player_atk);
+          mutant_rat.hp = mutant_rat.hp - player_atk;
+          if mutant_rat.hp < 0 || mutant_rat.hp == 0 {
+            println!("The mutant rat has 0hp/25hp");
+            println!("You win!");
+            return (player, true);
+          }
+          println!("The mutant rat has {}hp/25hp", mutant_rat.hp);
+          println!("");
+          turn = "opponent".to_string();
+        }
+        if choice == 2 {
+          (player, used_item) = check_inv_fight(player);
+          if used_item == true {
+            turn = "opponent".to_string();
+          }  
+        }
+        if choice == 3 {
+          println!("You can't run away from this fight!");
+        }
+      }
+    }
+  }
+  return (player, true);
+}
+
+fn fight(opponent: String, mut player: Player) -> (Player, bool) {
+  let mut used_item = false;
+  let mut opp_max_hp = 0;
+  let mut turn = "player".to_string();
+  let mut attacker = "";
+  let mut opponent_stats = Opponent {
+    hp: 0,
+    mp: 0,
+    min_atk: 0,
+    max_atk: 0,
+    magic_atks: vec!("".to_string())
+  };
+  if opponent == "mutant_rat" {
+    opponent_stats = Opponent {
+      hp: 25,
+      mp: 0,
+      min_atk: 4,
+      max_atk: 7,
+      magic_atks: vec!("".to_string())
+    };
+    opp_max_hp = opponent_stats.hp;
+    attacker = "mutant rat";
+  } 
+    loop {
+      if turn == "opponent" {
+        let mut random_atk = rand::thread_rng();
+        let opp_atk: i32 = random_atk.gen_range(opponent_stats.min_atk..(opponent_stats.max_atk + 1));
+        println!("The {} attacks you dealing {} damage",attacker, opp_atk);
+        player.prev_player_hp = player.player_hp;
+        player.player_hp = player.player_hp - opp_atk; 
+        if player.player_hp < 0 || player.player_hp == 0 {
+          println!("You have 0hp/{}hp", player.player_max_hp);
+          println!("You died!");
+          return (player, false)
+        }
+        println!("You have {}hp/{}hp", player.player_hp, player.player_max_hp);
+        println!("");
+        turn = "player".to_string();
+      }
+      if turn == "player" {
+        println!("Do you want to: 
+1) Attack
+2) Use an Item
+3) Run Away");
+        let choice: i32 = read!();
+        println!("");
+        if choice == 1 {
+          let mut random_atk = rand::thread_rng();
+          let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
+          println!("You attack the {} dealing {} damage",attacker , player_atk);
+          opponent_stats.hp = opponent_stats.hp - player_atk;
+          if opponent_stats.hp < 0 || opponent_stats.hp == 0 {
+            println!("The {} has 0hp/{}hp", attacker, opp_max_hp);
+            println!("You win!");
+            return (player, true);
+          }
+          println!("The {} has {}hp/{}hp", attacker, opponent_stats.hp, opp_max_hp);
+          println!("");
+          turn = "opponent".to_string();
+        }
+        if choice == 2 {
+          (player, used_item) = check_inv_fight(player);
+          if used_item == true {
+            turn = "opponent".to_string();
+          }  
+        }
+        if choice == 3 {
+          if player.player_max_atk > opponent_stats.max_atk {
+            println!("You successfully ran away!");
+            return (player, true)
+          }
+          else {
+            let strength_difference = opponent_stats.max_atk - player.player_max_atk;
+            let mut rng = rand::thread_rng();
+            let escape_chance: i32 = rng.gen_range(1..(strength_difference + 1));
+            if escape_chance > strength_difference / 2 {
+              println!("You successfully ran away!");
+              return (player, true)
+            }
+            else {
+              println!("You failed to run away!");
+              turn = "opponent".to_string();
+            }
+          }
+        }
+      }
+    }
+}
+
+fn room_change_w_items(chosen_rooms:Rooms, items:Vec<String>, mut player:Player) -> (Player, String, bool) {
   let mut direction:String = "".to_string();
   let mut room_title: String = "".to_string(); 
   let north_room = chosen_rooms.north_room;
@@ -138,7 +363,7 @@ or
       for i in items.clone() {
         println!("{}: {}", a, i);
         a += 1;
-        player_inv.push(i.to_string());
+        player.player_inv.push(i.to_string());
       }
       items_looted = true;
       println!("");
@@ -157,13 +382,13 @@ or
     direction = direction.to_lowercase();
     //checks if the direction chosen is locked, blocked, or empty
     if direction == "Check" || direction == "check" {
-      check_inv(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      check_inv(player.clone());
     }
     if direction == "north" || direction == "n" {
       if north_room != "" && north_room != "locked" && north_room != "Locked" && north_room != "blocked" && north_room != "Blocked"{
         room_title = north_room.clone();
         println!("");
-        return (player_inv, room_title, items_looted);
+        return (player, room_title, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -175,7 +400,7 @@ or
       if south_room != "" && south_room != "locked" && south_room != "Locked" && south_room != "blocked" && south_room != "Blocked"{
         room_title = south_room.clone();
         println!("");
-        return (player_inv, room_title, items_looted);
+        return (player, room_title, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -187,7 +412,7 @@ or
       if west_room != "" && west_room != "locked" && west_room != "Locked" && west_room != "blocked" && west_room != "Blocked"{
         room_title = west_room.clone();
         println!("");
-        return (player_inv, room_title, items_looted);
+        return (player, room_title, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -199,7 +424,7 @@ or
       if east_room != "" && east_room != "locked" && east_room != "Locked" && east_room != "blocked" && east_room != "Blocked"{
         room_title = east_room.clone();
         println!("");
-        return (player_inv, room_title, items_looted);
+        return (player, room_title, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -209,7 +434,7 @@ or
   }
 }
 
-fn room_change(chosen_rooms:Rooms, player_inv:Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
+fn room_change(chosen_rooms:Rooms, mut player:Player) -> String {
   let mut direction:String = "".to_string();
   let mut room_title: String = "".to_string(); 
   let north_room = chosen_rooms.north_room;
@@ -231,7 +456,7 @@ fn room_change(chosen_rooms:Rooms, player_inv:Vec<String>, player_hp:i32, player
     direction = direction.to_lowercase();
     //checks if the direction chosen is locked, blocked, or empty
     if direction == "Check" || direction == "check" {
-      check_inv(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      check_inv(player.clone());
     }
     if direction == "north" || direction == "n" {
       if north_room != "" && north_room != "locked" && north_room != "Locked" && north_room != "blocked" && north_room != "Blocked"{
@@ -288,7 +513,7 @@ fn title_screen() {
   println!("Welcome to: From Underground, a text adventure");
 }
 
-fn entrance(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
+fn entrance(mut player:Player) -> String {
   println!("Room: Entrance");
   println!("");
   let enterance_rooms = Rooms {
@@ -297,11 +522,11 @@ fn entrance(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_play
       west_room: "West Hallway".to_string(),
       east_room: "East Hallway".to_string()
     };
-    let room_title = room_change(enterance_rooms, player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+    let room_title = room_change(enterance_rooms, player.clone());
     return room_title;
 }
 
-fn east_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
+fn east_hallway(mut player:Player) -> String {
   println!("Room: East Hallway");
   println!("");
   let east_hallway_rooms = Rooms {
@@ -310,11 +535,11 @@ fn east_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_
       west_room: "Return to Entrance".to_string(),
       east_room: "Locked".to_string()
   };
-  let room_title = room_change(east_hallway_rooms, player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+  let room_title = room_change(east_hallway_rooms, player.clone());
   return room_title;
 }
 
-fn west_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
+fn west_hallway(mut player:Player) -> String {
   println!("Room: West Hallway");
   println!("");
   let west_hallway_rooms = Rooms {
@@ -323,11 +548,11 @@ fn west_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_
       west_room: "Locked".to_string(),
       east_room: "Return to Entrance".to_string()
   };
-  let room_title = room_change(west_hallway_rooms, player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+  let room_title = room_change(west_hallway_rooms, player.clone());
   return room_title;
 }
 
-fn supply_closet(mut items_in_closet: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
+fn supply_closet(mut items_in_closet: bool, mut player:Player) -> (Player, String, bool) {
   println!("Room: Supply Closet");
   println!("");
   let mut room_title = "".to_string();
@@ -339,15 +564,15 @@ fn supply_closet(mut items_in_closet: bool, mut player_inv: Vec<String>, player_
     };
     if items_in_closet == true {
       let items = vec!["Rope".to_string(), "Gemstone".to_string()];
-      (player_inv, room_title, items_in_closet) = room_change_w_items(supply_closet_rooms, items, player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      (player, room_title, items_in_closet) = room_change_w_items(supply_closet_rooms, items, player.clone());
     }
     else {
-      room_title = room_change(supply_closet_rooms, player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      room_title = room_change(supply_closet_rooms, player.clone());
     }
-  return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_closet);
+  return (player.clone(), room_title, items_in_closet);
 }
 
-fn kitchen(mut items_in_kitchen: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
+fn kitchen(mut items_in_kitchen: bool, mut player:Player) -> (Player, String, bool) {
   println!("Room: Kitchen");
   println!("");
   let mut room_title = "".to_string();
@@ -359,15 +584,15 @@ fn kitchen(mut items_in_kitchen: bool, mut player_inv: Vec<String>, player_hp: i
     };
     if items_in_kitchen == true {
       let items = vec!["Granny Apple".to_string(), "Leftover Steak".to_string()];
-      (player_inv, room_title, items_in_kitchen) = room_change_w_items(kitchen_rooms, items, player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      (player, room_title, items_in_kitchen) = room_change_w_items(kitchen_rooms, items, player.clone());
     }
     else {
-      room_title = room_change(kitchen_rooms, player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      room_title = room_change(kitchen_rooms, player.clone());
     }
-  return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_kitchen);
+  return (player.clone(), room_title, items_in_kitchen);
 }
 
-fn library(mut items_in_library: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
+fn library(mut items_in_library: bool, mut player:Player) -> (Player, String, bool) {
   println!("Room: Library");
   println!("");
   let mut room_title = "".to_string();
@@ -379,18 +604,19 @@ fn library(mut items_in_library: bool, mut player_inv: Vec<String>, player_hp: i
     };
     if items_in_library == true {
       let items = vec!["Health Potion".to_string(), "Mana Potion".to_string()];
-      (player_inv, room_title, items_in_library) = room_change_w_items(kitchen_rooms, items, player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      (player, room_title, items_in_library) = room_change_w_items(kitchen_rooms, items, player.clone());
     }
     else {
-      room_title = room_change(kitchen_rooms, player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      room_title = room_change(kitchen_rooms, player.clone());
     }
-  return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_library);
+  return (player.clone(), room_title, items_in_library);
 }
 
-fn scene_0() -> String {
+fn scene_0(mut player:Player) -> Player {
   println!("What is your name?");
-  let name: String = read!();
-  println!("Hello {}, press enter to continue", name);
+  let player_name: String = read!();
+  player.player_name = player_name;
+  println!("Hello {}, press enter to continue", player.player_name);
   
   let mut stdin = io::stdin();
   // Read a single byte and discard
@@ -399,7 +625,7 @@ fn scene_0() -> String {
   println!("\x1B[2J\x1B[1;1H");
   
   println!(r#""You were knocked out cold, dude."
-"{} Are you okay?""#, name);
+"{} Are you okay?""#, player.player_name);
   let response: String = read!();
   
   let mut response: String = response.to_lowercase();
@@ -437,14 +663,13 @@ it seems like you're in an underground cave.");
 You seem to be in a cave");
     println!("");
   }
-  return name.to_string();
+  return player;
 }
 
-
-fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i32, mut prev_player_hp: i32, mut player_mp: i32, mut player_max_mp: i32, mut prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32) {
+fn scene_1(mut player:Player) -> (Player, i32) {
   println!(r#""Follow me I'll show you to operations room.""#);
   println!("");
-  let mut room_title = entrance(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+  let mut room_title = entrance(player.clone());
   let mut picked_up_item_from_closet = false;
   let mut closet_room_title: String = "".to_string();
   let mut are_items_in_closet = true;
@@ -456,12 +681,12 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
   let mut are_items_in_library = true;
   loop {
     if room_title == "Follow" {
-      return (player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      return (player.clone(), 2);
     }
 
     if room_title == "West Hallway" || room_title == "Return to West Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = west_hallway(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      room_title = west_hallway(player.clone());
     }
     if room_title == "Supply Closet" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
@@ -469,24 +694,7 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
         are_items_in_closet = true;
       }
 
-      (player_inv, 
-           player_hp,
-           player_max_hp,
-           prev_player_hp, 
-           player_mp, 
-           player_max_mp, 
-           prev_player_mp, 
-           closet_room_title,
-           picked_up_item_from_closet)
-        = 
-        supply_closet(are_items_in_closet,
-                      player_inv.clone(), 
-                      player_hp, 
-                      player_max_hp, 
-                      prev_player_hp, 
-                      player_mp, 
-                      player_max_mp, 
-                      prev_player_mp);
+      (player, closet_room_title, picked_up_item_from_closet) = supply_closet(are_items_in_closet, player.clone());
       
       if closet_room_title == "Return to West Hallway" {
         room_title = "Return to West Hallway".to_string();
@@ -501,11 +709,11 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
   
     if room_title == "East Hallway" || room_title == "Return to East Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = east_hallway(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      room_title = east_hallway(player.clone());
     }
     if room_title == "Return to Entrance" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = entrance(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
+      room_title = entrance(player.clone());
     }
     if room_title == "Kitchen" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
@@ -513,24 +721,7 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
         are_items_in_kitchen = true;
       }
 
-      (player_inv, 
-           player_hp,
-           player_max_hp,
-           prev_player_hp, 
-           player_mp, 
-           player_max_mp, 
-           prev_player_mp, 
-           kitchen_room_title,
-           picked_up_item_from_kitchen)
-        = 
-        kitchen(are_items_in_kitchen,
-                      player_inv.clone(), 
-                      player_hp, 
-                      player_max_hp, 
-                      prev_player_hp, 
-                      player_mp, 
-                      player_max_mp, 
-                      prev_player_mp);
+      (player, kitchen_room_title, picked_up_item_from_kitchen) = kitchen(are_items_in_kitchen, player.clone());
       
       if kitchen_room_title == "Return to East Hallway" {
         room_title = "Return to East Hallway".to_string();
@@ -548,24 +739,7 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
         are_items_in_library = true;
       }
 
-      (player_inv, 
-           player_hp,
-           player_max_hp,
-           prev_player_hp, 
-           player_mp, 
-           player_max_mp, 
-           prev_player_mp, 
-           library_room_title,
-           picked_up_item_from_library)
-        = 
-        library(are_items_in_library,
-                      player_inv.clone(), 
-                      player_hp, 
-                      player_max_hp, 
-                      prev_player_hp, 
-                      player_mp, 
-                      player_max_mp, 
-                      prev_player_mp);
+      (player, library_room_title, picked_up_item_from_library) = library(are_items_in_library, player.clone());
       
       if library_room_title == "Return to East Hallway" {
         room_title = "Return to East Hallway".to_string();
@@ -578,4 +752,39 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
       }
     }
   }
+}
+
+fn scene_2(mut player:Player) -> (Player, i32) {
+  let mut win_or_lose = false;
+  println!("\x1B[2J\x1B[1;1H"); //clears the screen
+  println!(r#""Here we are, the operations room.""#);
+  println!("You hear the door behind you close.");
+  println!(r#""What is that?""#);
+  println!("He points at a weird animal coming out of the darkness towards the other side of the room.");
+  println!("It charges at you");
+  println!("");
+  (player, win_or_lose) = tutorial_fight("mutant_rat".to_string(), player.clone());
+  if win_or_lose == false {
+    return (player.clone(), 2)
+  }
+  println!("\x1B[2J\x1B[1;1H"); //clears the screen
+  println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
+  println!(r#""Here, one second, I'm going to turn on the operations screen""#);
+  println!("He turns on the screen and it says: ");
+println!("=====================================
+=                                   =
+=                                   =
+=      Thank you for playing!       =
+=       This is only a demo,        =
+=    but I am still developing it.  =
+=    I hope you enjoyed it though.  =
+=                                   =
+=                                   =
+=                                   =
+=                                   =
+=                                   =
+=                                   =
+=                                   =
+=====================================");
+  return (player.clone(), 3)
 }
