@@ -34,8 +34,8 @@ fn main() {
   let mut player_max_mp  = 100;
   let mut prev_player_mp  = 100;
 
-  //title_screen();
-  //let name: String = scene_0();
+  title_screen();
+  let name: String = scene_0();
   (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp) 
     = 
     scene_1(player_inv.clone(), player_hp.clone(), player_max_hp.clone(), prev_player_hp.clone(), player_mp.clone(), player_max_mp.clone(), prev_player_mp.clone());
@@ -69,6 +69,7 @@ fn check_inv(mut player_inv: Vec<String>, mut player_hp:i32, mut player_max_hp:i
     println!("");
     println!("Would you like to use an item? [y/n]");
     let choice: String = read!();
+    let choice = choice.to_lowercase();
     if choice == "yes" || choice == "y" {
       println!("Which item?");
       let mut item_choice: usize = read!();
@@ -288,7 +289,7 @@ fn title_screen() {
 }
 
 fn entrance(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
-  println!("Entrance");
+  println!("Room: Entrance");
   println!("");
   let enterance_rooms = Rooms {
       north_room: "Follow".to_string(),
@@ -301,7 +302,7 @@ fn entrance(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_play
 }
 
 fn east_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
-  println!("East Hallway");
+  println!("Room: East Hallway");
   println!("");
   let east_hallway_rooms = Rooms {
       north_room: "Library".to_string(),
@@ -314,7 +315,7 @@ fn east_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_
 }
 
 fn west_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_player_hp:i32, player_mp:i32, player_max_mp:i32, prev_player_mp:i32) -> String {
-  println!("West Hallway");
+  println!("Room: West Hallway");
   println!("");
   let west_hallway_rooms = Rooms {
       north_room: "Supply Closet".to_string(),
@@ -327,7 +328,7 @@ fn west_hallway(player_inv: Vec<String>, player_hp:i32, player_max_hp:i32, prev_
 }
 
 fn supply_closet(mut items_in_closet: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
-  println!("Supply Closet");
+  println!("Room: Supply Closet");
   println!("");
   let mut room_title = "".to_string();
   let supply_closet_rooms = Rooms {
@@ -347,7 +348,7 @@ fn supply_closet(mut items_in_closet: bool, mut player_inv: Vec<String>, player_
 }
 
 fn kitchen(mut items_in_kitchen: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
-  println!("Kitchen");
+  println!("Room: Kitchen");
   println!("");
   let mut room_title = "".to_string();
   let kitchen_rooms = Rooms {
@@ -367,7 +368,7 @@ fn kitchen(mut items_in_kitchen: bool, mut player_inv: Vec<String>, player_hp: i
 }
 
 fn library(mut items_in_library: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
-  println!("Library");
+  println!("Room: Library");
   println!("");
   let mut room_title = "".to_string();
   let kitchen_rooms = Rooms {
@@ -428,18 +429,19 @@ fn scene_0() -> String {
     println!("");
     println!("You stand up and look around. 
 it seems like you're in an underground cave.");
+    println!("");
   }
-  else if print_text == 2 {
+  else {
     println!("");
     println!("He helps you up and you look around.
 You seem to be in a cave");
+    println!("");
   }
   return name.to_string();
 }
 
 
 fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i32, mut prev_player_hp: i32, mut player_mp: i32, mut player_max_mp: i32, mut prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32) {
-  println!("\x1B[2J\x1B[1;1H"); //clears the screen
   println!(r#""Follow me I'll show you to operations room.""#);
   println!("");
   let mut room_title = entrance(player_inv.clone(), player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp);
