@@ -7,6 +7,9 @@ pub fn hp_potion(mut player:Player) -> Player {
       player.prev_player_hp = player.player_hp;
       player.player_hp = player.player_hp + 25;
       remove_first(&mut player.player_inv, |r| r == "Health Potion");
+      if player.player_hp > player.player_max_hp {
+        player.player_hp = player.player_max_hp 
+      }
       return player;
     }
     else {
@@ -29,6 +32,9 @@ pub fn med_hp_potion(mut player:Player) -> Player {
       player.prev_player_hp = player.player_hp;
       player.player_hp = player.player_hp + 50;
       remove_first(&mut player.player_inv, |r| r == "Medium Health Potion");
+      if player.player_hp > player.player_max_hp {
+        player.player_hp = player.player_max_hp 
+      }
       return player;
     }
     else {
@@ -48,6 +54,9 @@ pub fn large_hp_potion(mut player:Player) -> Player {
       player.prev_player_hp = player.player_hp;
       player.player_hp = player.player_hp + 75;
       remove_first(&mut player.player_inv, |r| r == "Large Health Potion");
+      if player.player_hp > player.player_max_hp {
+        player.player_hp = player.player_max_hp 
+      }
       return player;
     }
     else {
@@ -68,6 +77,9 @@ pub fn mp_potion(mut player:Player) -> Player {
       player.prev_player_mp = player.player_mp;
       player.player_mp = player.player_mp + 25;
       remove_first(&mut player.player_inv, |r| r == "Mana Potion");
+      if player.player_mp > player.player_max_mp {
+        player.player_mp = player.player_max_mp 
+      }
       return player;
     }
     else {
@@ -90,6 +102,9 @@ pub fn med_mp_potion(mut player:Player) -> Player {
       player.prev_player_mp = player.player_mp;
       player.player_mp = player.player_mp + 50;
       remove_first(&mut player.player_inv, |r| r == "Medium Mana Potion");
+      if player.player_mp > player.player_max_mp {
+        player.player_mp = player.player_max_mp 
+      }
       return player;
     }
     else {
@@ -104,11 +119,14 @@ pub fn med_mp_potion(mut player:Player) -> Player {
 }
 
 pub fn large_mp_potion(mut player:Player) -> Player {
-  if player.player_inv.contains(&"LargeMana Potion".to_string()) {
+  if player.player_inv.contains(&"Large Mana Potion".to_string()) {
     if player.player_mp != player.player_max_mp {
       player.prev_player_mp = player.player_mp;
       player.player_mp = player.player_mp + 75;
-      remove_first(&mut player.player_inv, |r| r == "LargeMana Potion");
+      remove_first(&mut player.player_inv, |r| r == "Large Mana Potion");
+      if player.player_mp > player.player_max_mp {
+        player.player_mp = player.player_max_mp 
+      }
       return player;
     }
     else {

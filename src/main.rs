@@ -133,7 +133,7 @@ fn check_inv(mut player: Player) -> Player {
 }
 
 fn check_inv_fight(mut player: Player) -> (Player, bool) {
-  let used_item = false;
+  let mut used_item = false;
   if player.player_inv.is_empty() == false {
     println!("\x1B[2J\x1B[1;1H"); //clears the screen
     println!("Inventory:");
@@ -152,6 +152,7 @@ fn check_inv_fight(mut player: Player) -> (Player, bool) {
       item_choice -= 1;
       let item_use_input: String = player.player_inv[item_choice].clone();
       player = item_use(player, item_use_input);
+      used_item = true;
       return (player, used_item)
     }
     else {
