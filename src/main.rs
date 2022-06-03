@@ -242,9 +242,6 @@ fn room_change(chosen_rooms:Rooms, player_inv:Vec<String>) -> String {
   }
 }
 
-
-
-
 fn title_screen() {
   println!("\x1B[2J\x1B[1;1H"); //clears the screen
   println!("Welcome to: From Underground, a text adventure");
@@ -290,23 +287,23 @@ fn west_hallway(player_inv: Vec<String>) -> String {
 }
 
 fn supply_closet(mut items_in_closet: bool, mut player_inv: Vec<String>, player_hp: i32, player_max_hp: i32, prev_player_hp: i32,player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (Vec<String>, i32, i32, i32, i32, i32, i32, String, bool) {
-println!("Supply Closet");
-println!("");
-let mut room_title = "".to_string();
-let supply_closet_rooms = Rooms {
-      north_room: "".to_string(),
-      south_room: "Return to West Hallway".to_string(),
-      west_room: "".to_string(),
-      east_room: "".to_string()
-  };
-  if items_in_closet == true {
-    let items = vec!["Rope".to_string(), "Gemstone".to_string()];
-    (player_inv, room_title, items_in_closet) = room_change_w_items(supply_closet_rooms, items, player_inv);
-  }
-  else {
-    room_title = room_change(supply_closet_rooms, player_inv.clone());
-  }
-return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_closet);
+  println!("Supply Closet");
+  println!("");
+  let mut room_title = "".to_string();
+  let supply_closet_rooms = Rooms {
+        north_room: "".to_string(),
+        south_room: "Return to West Hallway".to_string(),
+        west_room: "".to_string(),
+        east_room: "".to_string()
+    };
+    if items_in_closet == true {
+      let items = vec!["Rope".to_string(), "Gemstone".to_string()];
+      (player_inv, room_title, items_in_closet) = room_change_w_items(supply_closet_rooms, items, player_inv);
+    }
+    else {
+      room_title = room_change(supply_closet_rooms, player_inv.clone());
+    }
+  return (player_inv, player_hp, player_max_hp, prev_player_hp, player_mp, player_max_mp, prev_player_mp, room_title, items_in_closet);
 }
 
 fn scene_0() -> String {
