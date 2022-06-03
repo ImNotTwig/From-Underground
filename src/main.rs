@@ -400,8 +400,6 @@ fn scene_1(mut player_inv: Vec<String>, mut player_hp: i32, mut player_max_hp: i
                       player_max_mp, 
                       prev_player_mp);
       
-      
-
       if closet_room_title == "Return to West Hallway" {
         room_title = "Return to West Hallway".to_string();
       }
