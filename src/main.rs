@@ -66,7 +66,7 @@ fn main() {
     player_max_atk: 10
   };
   player.player_inv.remove(0);
-  //title_screen();
+  title_screen();
   loop {
     if level == 0 {
       player = scene_0(player);
