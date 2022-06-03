@@ -67,7 +67,6 @@ fn main() {
   };
   player.player_inv.remove(0);
   //title_screen();
-  level = 2;
   loop {
     if level == 0 {
       player = scene_0(player);
