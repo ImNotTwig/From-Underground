@@ -59,3 +59,63 @@ pub fn large_hp_potion(mut player_inv: Vec<String>, player_hp: i32, player_max_h
     return (player_inv, player_hp, prev_player_hp);
   }
 }
+
+pub fn mp_potion(mut player_inv: Vec<String>, player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
+  if player_inv.contains(&"Mana Potion".to_string()) {
+    if player_mp != player_max_mp {
+      let prev_player_mp = player_mp;
+      let player_mp = player_mp + 25;
+      remove_first(&mut player_inv, |r| r == "Mana Potion");
+      return (player_inv, player_mp, prev_player_mp);
+    }
+    else {
+      println!("You have full mana!");
+      return (player_inv, player_mp, prev_player_mp);
+    }
+  }
+  else {
+    println!("You don't have any mana potions!");
+    return (player_inv, player_mp, prev_player_mp);
+  }
+}
+
+//this is how to use this function, it's the same for every varient
+// let (player_inv, player_mp, prev_player_mp) = mp_potion(player_inv, player_mp, player_max_mp, prev_player_mp);
+
+pub fn med_mp_potion(mut player_inv: Vec<String>, player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
+  if player_inv.contains(&"Medium Mana Potion".to_string()) {
+    if player_mp != player_max_mp {
+      let prev_player_mp = player_mp;
+      let player_mp = player_mp + 25;
+      remove_first(&mut player_inv, |r| r == "Medium Mana Potion");
+      return (player_inv, player_mp, prev_player_mp);
+    }
+    else {
+      println!("You have full mana!");
+      return (player_inv, player_mp, prev_player_mp);
+    }
+  }
+  else {
+    println!("You don't have any medium mana potions!");
+    return (player_inv, player_mp, prev_player_mp);
+  }
+}
+
+pub fn large_mp_potion(mut player_inv: Vec<String>, player_mp: i32, player_max_mp: i32, prev_player_mp: i32) -> (/*player_inv:*/ Vec<String>, /*player_hp:*/ i32, /*prev_player_hp:*/ i32) {
+  if player_inv.contains(&"LargeMana Potion".to_string()) {
+    if player_mp != player_max_mp {
+      let prev_player_mp = player_mp;
+      let player_mp = player_mp + 25;
+      remove_first(&mut player_inv, |r| r == "LargeMana Potion");
+      return (player_inv, player_mp, prev_player_mp);
+    }
+    else {
+      println!("You have full mana!");
+      return (player_inv, player_mp, prev_player_mp);
+    }
+  }
+  else {
+    println!("You don't have any large mana potions!");
+    return (player_inv, player_mp, prev_player_mp);
+  }
+}
