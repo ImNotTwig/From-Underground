@@ -10,6 +10,7 @@ pub fn hp_potion(mut player:Player) -> Player {
       if player.player_hp > player.player_max_hp {
         player.player_hp = player.player_max_hp 
       }
+      println!("You healed yourself for 25hp");
       return player;
     }
     else {
@@ -35,6 +36,7 @@ pub fn med_hp_potion(mut player:Player) -> Player {
       if player.player_hp > player.player_max_hp {
         player.player_hp = player.player_max_hp 
       }
+      println!("You healed yourself for 50hp");
       return player;
     }
     else {
@@ -57,6 +59,7 @@ pub fn large_hp_potion(mut player:Player) -> Player {
       if player.player_hp > player.player_max_hp {
         player.player_hp = player.player_max_hp 
       }
+      println!("You healed yourself for 75hp");
       return player;
     }
     else {
@@ -80,6 +83,7 @@ pub fn mp_potion(mut player:Player) -> Player {
       if player.player_mp > player.player_max_mp {
         player.player_mp = player.player_max_mp 
       }
+      println!("You replenished 25mp");
       return player;
     }
     else {
@@ -105,6 +109,7 @@ pub fn med_mp_potion(mut player:Player) -> Player {
       if player.player_mp > player.player_max_mp {
         player.player_mp = player.player_max_mp 
       }
+      println!("You replenished 50mp");
       return player;
     }
     else {
@@ -127,6 +132,7 @@ pub fn large_mp_potion(mut player:Player) -> Player {
       if player.player_mp > player.player_max_mp {
         player.player_mp = player.player_max_mp 
       }
+      println!("You replenished 75mp");
       return player;
     }
     else {

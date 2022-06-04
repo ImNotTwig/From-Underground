@@ -9,6 +9,9 @@ use crate::potions::large_hp_potion;
 use crate::potions::mp_potion;
 use crate::potions::med_mp_potion;
 use crate::potions::large_mp_potion;
+mod food;
+use crate::food::leftover_steak;
+use crate::food::granny_apple;
   //I want a title screen [x]
   //I want to start the story  [x]
   //I want multiple rooms to be able to go between
@@ -187,6 +190,12 @@ fn item_use(mut player: Player, item: String) -> Player {
   if item == "Large Health Potion" {
     player = large_mp_potion(player);
   }
+  if item == "Granny Apple" {
+    player = granny_apple(player);
+  }
+  if item == "Leftover Steak" {
+    player = leftover_steak(player); 
+  }
   return player;
 }
 
@@ -227,6 +236,7 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
         if choice == 1 {
           let mut random_atk = rand::thread_rng();
           let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
+          println!("\x1B[2J\x1B[1;1H"); //clears the screen
           println!("You attack the mutant rat dealing {} damage", player_atk);
           mutant_rat.hp = mutant_rat.hp - player_atk;
           if mutant_rat.hp < 0 || mutant_rat.hp == 0 {
@@ -302,6 +312,7 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
         if choice == 1 {
           let mut random_atk = rand::thread_rng();
           let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
+          println!("\x1B[2J\x1B[1;1H"); //clears the screen
           println!("You attack the {} dealing {} damage",attacker , player_atk);
           opponent_stats.hp = opponent_stats.hp - player_atk;
           if opponent_stats.hp < 0 || opponent_stats.hp == 0 {
@@ -767,7 +778,6 @@ fn scene_2(mut player:Player) -> (Player, i32) {
   if win_or_lose == false {
     return (player.clone(), 2)
   }
-  println!("\x1B[2J\x1B[1;1H"); //clears the screen
   println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
   println!(r#""Here, one second, I'm going to turn on the operations screen""#);
   println!("He turns on the screen and it says: ");
