@@ -14,11 +14,11 @@ use crate::food::leftover_steak;
 use crate::food::granny_apple;
   //I want a title screen [x]
   //I want to start the story  [x]
-  //I want multiple rooms to be able to go between
-  //I want items to be a prominent part of the game 
+  //I want multiple rooms to be able to go between [x]
+  //I want items to be a prominent part of the game [x]
   //I want multiple routes to go through to finish the game meaning I want to be able to have unique playthoughs
   //I want an inventory system [x]
-  //I want a fighting system 
+  //I want a fighting system [x]
   //I want some kind of mana/health system [x]
 #[derive(Debug)]
 struct Rooms {
@@ -781,7 +781,7 @@ fn scene_2(mut player:Player) -> (Player, i32) {
   println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
   println!(r#""Here, one second, I'm going to turn on the operations screen""#);
   println!("He turns on the screen and it says: ");
-println!("=====================================
+  println!("=====================================
 =                                   =
 =                                   =
 =      Thank you for playing!       =
