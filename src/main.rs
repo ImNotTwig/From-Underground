@@ -80,7 +80,9 @@ fn main() {
     }
     if level == 2 {
       (player, level) = scene_2(player);
-      return
+    }
+    if level == 3 {
+      (player, level) = scene_3(player);
     }
   }
 }
@@ -781,20 +783,26 @@ fn scene_2(mut player:Player) -> (Player, i32) {
   println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
   println!(r#""Here, one second, I'm going to turn on the operations screen""#);
   println!("He turns on the screen and it says: ");
-  println!("=====================================
-=                                   =
-=                                   =
-=      Thank you for playing!       =
-=       This is only a demo,        =
-=    but I am still developing it.  =
-=    I hope you enjoyed it though.  =
-=                                   =
-=                                   =
-=                                   =
-=                                   =
-=                                   =
-=                                   =
-=                                   =
-=====================================");
-  return (player.clone(), 3)
+  println!("====================================|
+|                                   |
+|            Operations:            |
+|     ERROR: Power not connected.   |
+|       Running on backup power.    |
+|          Please reconnect.        |
+|                                   |
+|     ERROR: No storage drive.      |
+|           Please insert.          |
+|                                   |
+|                                   |
+|                                   |
+|                                   |
+|                                   |
+|===================================|");
+}
+
+fn scene_3(player: Player) -> (Player, level) {
+  println!("");
+  println!(r#""That rat must've chewed up some of the hardware.""#);
+  println!(r#""You look for the hard drive and I'll fix the power.""#);
+
 }
