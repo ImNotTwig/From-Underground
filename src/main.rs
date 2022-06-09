@@ -798,11 +798,12 @@ fn scene_2(mut player:Player) -> (Player, i32) {
 |                                   |
 |                                   |
 |===================================|");
+return (player, 3)
 }
 
-fn scene_3(player: Player) -> (Player, level) {
+fn scene_3(player: Player) -> (Player, i32) {
   println!("");
   println!(r#""That rat must've chewed up some of the hardware.""#);
   println!(r#""You look for the hard drive and I'll fix the power.""#);
-
+  return (player, 4);
 }
