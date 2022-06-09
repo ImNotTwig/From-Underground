@@ -447,7 +447,7 @@ or
   }
 }
 
-fn room_change(chosen_rooms:Rooms, mut player:Player) -> String {
+fn room_change(chosen_rooms:Rooms, player:Player) -> (Player, String) {
   let mut direction:String = "".to_string();
   let mut room_title: String = "".to_string(); 
   let north_room = chosen_rooms.north_room;
@@ -475,7 +475,7 @@ fn room_change(chosen_rooms:Rooms, mut player:Player) -> String {
       if north_room != "" && north_room != "locked" && north_room != "Locked" && north_room != "blocked" && north_room != "Blocked"{
         room_title = north_room.clone();
         println!("");
-        return room_title
+        return (player, room_title)
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -487,7 +487,7 @@ fn room_change(chosen_rooms:Rooms, mut player:Player) -> String {
       if south_room != "" && south_room != "locked" && south_room != "Locked" && south_room != "blocked" && south_room != "Blocked"{
         room_title = south_room.clone();
         println!("");
-        return room_title
+        return (player, room_title)
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -499,7 +499,7 @@ fn room_change(chosen_rooms:Rooms, mut player:Player) -> String {
       if west_room != "" && west_room != "locked" && west_room != "Locked" && west_room != "blocked" && west_room != "Blocked"{
         room_title = west_room.clone();
         println!("");
-        return room_title
+        return (player, room_title)
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -511,7 +511,7 @@ fn room_change(chosen_rooms:Rooms, mut player:Player) -> String {
       if east_room != "" && east_room != "locked" && east_room != "Locked" && east_room != "blocked" && east_room != "Blocked"{
         room_title = east_room.clone();
         println!("");
-        return room_title
+        return (player, room_title)
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -526,7 +526,7 @@ fn title_screen() {
   println!("Welcome to: From Underground, a text adventure");
 }
 
-fn entrance(mut player:Player) -> String {
+fn entrance(player:Player) -> (Player, String) {
   println!("Room: Entrance");
   println!("");
   let enterance_rooms = Rooms {
@@ -535,11 +535,11 @@ fn entrance(mut player:Player) -> String {
       west_room: "West Hallway".to_string(),
       east_room: "East Hallway".to_string()
     };
-    let room_title = room_change(enterance_rooms, player.clone());
-    return room_title;
+    let (player, room_title) = room_change(enterance_rooms, player.clone());
+    return (player, room_title);
 }
 
-fn east_hallway(mut player:Player) -> String {
+fn east_hallway(player:Player) -> (Player, String) {
   println!("Room: East Hallway");
   println!("");
   let east_hallway_rooms = Rooms {
@@ -548,11 +548,11 @@ fn east_hallway(mut player:Player) -> String {
       west_room: "Return to Entrance".to_string(),
       east_room: "Locked".to_string()
   };
-  let room_title = room_change(east_hallway_rooms, player.clone());
-  return room_title;
+  let (player, room_title) = room_change(east_hallway_rooms, player.clone());
+  return (player, room_title);
 }
 
-fn west_hallway(mut player:Player) -> String {
+fn west_hallway(player:Player) -> (Player, String) {
   println!("Room: West Hallway");
   println!("");
   let west_hallway_rooms = Rooms {
@@ -561,8 +561,8 @@ fn west_hallway(mut player:Player) -> String {
       west_room: "Locked".to_string(),
       east_room: "Return to Entrance".to_string()
   };
-  let room_title = room_change(west_hallway_rooms, player.clone());
-  return room_title;
+  let (player, room_title) = room_change(west_hallway_rooms, player.clone());
+  return (player, room_title);
 }
 
 fn supply_closet(mut items_in_closet: bool, mut player:Player) -> (Player, String, bool) {
@@ -580,7 +580,7 @@ fn supply_closet(mut items_in_closet: bool, mut player:Player) -> (Player, Strin
       (player, room_title, items_in_closet) = room_change_w_items(supply_closet_rooms, items, player.clone());
     }
     else {
-      room_title = room_change(supply_closet_rooms, player.clone());
+      (player, room_title) = room_change(supply_closet_rooms, player.clone());
     }
   return (player.clone(), room_title, items_in_closet);
 }
@@ -600,7 +600,7 @@ fn kitchen(mut items_in_kitchen: bool, mut player:Player) -> (Player, String, bo
       (player, room_title, items_in_kitchen) = room_change_w_items(kitchen_rooms, items, player.clone());
     }
     else {
-      room_title = room_change(kitchen_rooms, player.clone());
+      (player, room_title) = room_change(kitchen_rooms, player.clone());
     }
   return (player.clone(), room_title, items_in_kitchen);
 }
@@ -620,7 +620,7 @@ fn library(mut items_in_library: bool, mut player:Player) -> (Player, String, bo
       (player, room_title, items_in_library) = room_change_w_items(kitchen_rooms, items, player.clone());
     }
     else {
-      room_title = room_change(kitchen_rooms, player.clone());
+      (player, room_title) = room_change(kitchen_rooms, player.clone());
     }
   return (player.clone(), room_title, items_in_library);
 }
@@ -682,7 +682,8 @@ You seem to be in a cave");
 fn scene_1(mut player:Player) -> (Player, i32) {
   println!(r#""Follow me I'll show you to operations room.""#);
   println!("");
-  let mut room_title = entrance(player.clone());
+  let mut room_title = "".to_string();
+  (player, room_title) = entrance(player.clone());
   let mut picked_up_item_from_closet = false;
   let mut closet_room_title: String = "".to_string();
   let mut are_items_in_closet = true;
@@ -699,7 +700,7 @@ fn scene_1(mut player:Player) -> (Player, i32) {
 
     if room_title == "West Hallway" || room_title == "Return to West Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = west_hallway(player.clone());
+      (player, room_title) = west_hallway(player.clone());
     }
     if room_title == "Supply Closet" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
@@ -722,11 +723,11 @@ fn scene_1(mut player:Player) -> (Player, i32) {
   
     if room_title == "East Hallway" || room_title == "Return to East Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = east_hallway(player.clone());
+      (player, room_title) = east_hallway(player.clone());
     }
     if room_title == "Return to Entrance" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      room_title = entrance(player.clone());
+      (player, room_title) = entrance(player.clone());
     }
     if room_title == "Kitchen" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
