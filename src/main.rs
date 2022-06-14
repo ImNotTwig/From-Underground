@@ -3,15 +3,9 @@ use std::io::prelude::*;
 use text_io::read;
 use rand::Rng;
 mod potions;
-use crate::potions::hp_potion;
-use crate::potions::med_hp_potion;
-use crate::potions::large_hp_potion;
-use crate::potions::mp_potion;
-use crate::potions::med_mp_potion;
-use crate::potions::large_mp_potion;
+use crate::potions::*;
 mod food;
-use crate::food::leftover_steak;
-use crate::food::granny_apple;
+use crate::food::*;
   //I want a title screen [x]
   //I want to start the story  [x]
   //I want multiple rooms to be able to go between [x]
@@ -438,7 +432,7 @@ or
     direction = read!();
     direction = direction.to_lowercase();
     //checks if the direction chosen is locked, blocked, or empty
-    if direction == "Check" || direction == "check" {
+    if direction == "Check" || direction == "check" || direction == "c" || direction == "C" {
       check_inv(player.clone());
     }
     if direction == "north" || direction == "n" {
