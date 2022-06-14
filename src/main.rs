@@ -51,9 +51,9 @@ pub struct Player {
   player_min_atk: i32,
   player_max_atk: i32
 }
+#[derive(Clone)]
 struct Rooms_Data {
   room_title: String,
-  passed_through_first_set_of_rooms: bool,
   picked_up_item_from_closet: bool,
   are_items_in_closet: bool,
   picked_up_item_from_kitchen: bool,
@@ -79,10 +79,8 @@ fn main() {
     player_min_atk: 5,
     player_max_atk: 10
   };
-  let mut item_in_rooms = Rooms_Data {
+  let mut rooms_data = Rooms_Data {
     room_title: "".to_string(),
-
-    passed_through_first_set_of_rooms: false,
 
     picked_up_item_from_closet: false,
     are_items_in_closet:true,
@@ -106,13 +104,25 @@ fn main() {
       level = 1
     }
     if level == 1 {
-      (player, item_in_rooms, level) = scene_1(player, item_in_rooms, );
+      println!(r#""Follow me I'll show you to operations room.""#);
+      println!("");
+      (player, rooms_data, level) = scene_1(player, rooms_data.clone());
     }
     if level == 2 {
-      (player, level) = scene_2(player);
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      println!(r#""Here we are, the operations room.""#);
+      println!("You hear the door behind you close.");
+      println!(r#""What is that?""#);
+      println!("He points at a weird animal coming out of the darkness towards the other side of the room.");
+      println!("It charges at you");
+      println!("");
+      (player, rooms_data, level) = scene_2(player, rooms_data.clone());
     }
     if level == 3 {
-      (player, level) = scene_3(player);
+      println!("");
+      println!(r#""That rat must've chewed up some of the hardware.""#);
+      println!(r#""You look for the hard drive and I'll fix the power.""#);
+      (player, rooms_data, level) = scene_3(player, rooms_data.clone());
     }
   }
 }
@@ -585,21 +595,87 @@ fn library(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data)
         south_room: "Return to East Hallway".to_string(),
         west_room: "".to_string(),
         east_room: "".to_string()
-    };
-    if rooms_data.are_items_in_library == true {
-      let items = vec!["Health Potion".to_string(), "Mana Potion".to_string()];
-      (player, rooms_data, rooms_data.picked_up_item_from_library) = room_change(library_rooms, items, player.clone(), rooms_data, true);
-    }
-    else {
-      let items = vec!("".to_string());
-      (player, rooms_data, rooms_data.picked_up_item_from_library) = room_change(library_rooms, items, player.clone(), rooms_data, false);
-    }
+  };
+  if rooms_data.are_items_in_library == true {
+    let items = vec!["Health Potion".to_string(), "Mana Potion".to_string()];
+    (player, rooms_data, rooms_data.picked_up_item_from_library) = room_change(library_rooms, items, player.clone(), rooms_data, true);
+  }
+  else {
+    let items = vec!("".to_string());
+    (player, rooms_data, rooms_data.picked_up_item_from_library) = room_change(library_rooms, items, player.clone(), rooms_data, false);
+  }
   return (player.clone(), rooms_data);
 }
+//finish this
+fn operations_room(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
+  println!("Room: Operations Room");
+  println!("");
+  let items = vec!("".to_string());
+  let operation_room_rooms = Rooms {
+    north_room: "".to_string(),
+    south_room: "Entrance".to_string(),
+    west_room: "".to_string(),
+    east_room: "".to_string()
+  };
+  (player, rooms_data, _) = room_change(operation_room_rooms, items, player.clone(), rooms_data, false);
+  return(player.clone(), rooms_data);
+}
 
-fn operations_room(mut player:Player, rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
+fn rooms_loop(mut player:Player, mut rooms_data:Rooms_Data) -> (Player,Rooms_Data) {
+  loop {
+		if rooms_data.room_title == "Operations Room" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			(player, rooms_data) = operations_room(player.clone(), rooms_data);
+		}
 
-  return(player, rooms_data);
+		if rooms_data.room_title == "West Hallway" || rooms_data.room_title == "Return to West Hallway" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			(player, rooms_data) = west_hallway(player.clone(), rooms_data);
+		}
+
+		if rooms_data.room_title == "Supply Closet" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			if rooms_data.picked_up_item_from_closet == false {
+				rooms_data.are_items_in_closet = true;
+			}
+			(player, rooms_data) = supply_closet(player.clone(), rooms_data);
+			if rooms_data.picked_up_item_from_closet == true {
+				rooms_data.are_items_in_closet = false;
+			}
+		}
+
+		if rooms_data.room_title == "East Hallway" || rooms_data.room_title == "Return to East Hallway" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			(player, rooms_data) = east_hallway(player.clone(), rooms_data);
+		}
+
+		if rooms_data.room_title == "Entrance" || rooms_data.room_title == "Return to Entrance" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			(player, rooms_data) = entrance_scene_two(player.clone(), rooms_data);
+		}
+
+		if rooms_data.room_title == "Kitchen" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			if rooms_data.picked_up_item_from_kitchen == false {
+				rooms_data.are_items_in_kitchen = true;
+			}
+			(player, rooms_data) = kitchen(player.clone(), rooms_data);
+			if rooms_data.picked_up_item_from_kitchen == true {
+				rooms_data.are_items_in_kitchen = false;
+			}
+		}
+	
+		if rooms_data.room_title == "Library" {
+			println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			if rooms_data.picked_up_item_from_library == false {
+				rooms_data.are_items_in_library = true;
+			}
+			(player, rooms_data) = library(player.clone(), rooms_data);
+			if rooms_data.picked_up_item_from_library == true {
+				rooms_data.are_items_in_library = false;
+			}
+		}
+	}
 }
 
 fn scene_0(mut player:Player) -> Player {
@@ -655,20 +731,12 @@ You seem to be in a cave");
   }
   return player;
 }
-//I need to make it where if items are picked up this function will keep that state [X]
-// and I need to include an if statement checking if Ive already been through this level so I can call this function without the text [X]
-// and an alternative to the follow room_title for "operations_room"
-//clean up the functions for the rooms with items [X]
-fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data, i32) {
-  if rooms_data.passed_through_first_set_of_rooms == false {
-    println!(r#""Follow me I'll show you to operations room.""#);
-    println!("");
-    (player, rooms_data) = entrance(player.clone(), rooms_data);
-  }
 
+fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data, i32) {
+  (player, rooms_data) = entrance(player.clone(), rooms_data);
+  // this loops has to be written here because of the if room_title == "Follow" statement, this is because it returns to go to the next scene
   loop {
       if rooms_data.room_title == "Follow" {
-        rooms_data.passed_through_first_set_of_rooms = true;
         return(player.clone(), rooms_data, 2);
       }
 
@@ -702,11 +770,6 @@ fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data
       (player, rooms_data) = entrance(player.clone(), rooms_data);
     }
 
-    if rooms_data.room_title == "Entrance" {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      (player, rooms_data) = entrance_scene_two(player.clone(), rooms_data);
-    }
-
     if rooms_data.room_title == "Kitchen" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       if rooms_data.picked_up_item_from_kitchen == false {
@@ -718,7 +781,6 @@ fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data
       }
     }
    
-
     if rooms_data.room_title == "Library" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       if rooms_data.picked_up_item_from_library == false {
@@ -732,18 +794,11 @@ fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data
   }
 }
 
-fn scene_2(mut player:Player) -> (Player, i32) {
+fn scene_2(mut player:Player, rooms_data:Rooms_Data) -> (Player, Rooms_Data, i32) {
   let mut did_win = false;
-  println!("\x1B[2J\x1B[1;1H"); //clears the screen
-  println!(r#""Here we are, the operations room.""#);
-  println!("You hear the door behind you close.");
-  println!(r#""What is that?""#);
-  println!("He points at a weird animal coming out of the darkness towards the other side of the room.");
-  println!("It charges at you");
-  println!("");
   (player, did_win) = tutorial_fight("mutant_rat".to_string(), player.clone());
   if did_win == false {
-    return (player.clone(), 2)
+    return (player.clone(), rooms_data, 2)
   }
   println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
   println!(r#""Here, one second, I'm going to turn on the operations screen""#);
@@ -763,13 +818,11 @@ fn scene_2(mut player:Player) -> (Player, i32) {
 |                                   |
 |                                   |
 |===================================|");
-return (player, 3)
+return (player, rooms_data, 3)
 }
 
-fn scene_3(player: Player) -> (Player, i32) {
-  println!("");
-  println!(r#""That rat must've chewed up some of the hardware.""#);
-  println!(r#""You look for the hard drive and I'll fix the power.""#);
-  
-  return (player, 4);
+fn scene_3(mut player: Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data, i32) {
+  rooms_data.room_title = "Operations Room".to_string();
+  (player, rooms_data) = rooms_loop(player, rooms_data);
+  return (player, rooms_data, 4);
 }
