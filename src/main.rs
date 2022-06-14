@@ -32,7 +32,8 @@ struct Opponent {
   mp: i32,
   min_atk: i32,
   max_atk: i32,
-  magic_atks: Vec<String>
+  magic_atks: Vec<String>,
+  inv: Vec<String>
 }
 #[derive(Clone)]
 pub struct Player {
@@ -49,6 +50,16 @@ pub struct Player {
 
   player_min_atk: i32,
   player_max_atk: i32
+}
+struct Rooms_Data {
+  room_title: String,
+  passed_through_first_set_of_rooms: bool,
+  picked_up_item_from_closet: bool,
+  are_items_in_closet: bool,
+  picked_up_item_from_kitchen: bool,
+  are_items_in_kitchen: bool,
+  picked_up_item_from_library: bool,
+  are_items_in_library: bool
 }
 
 fn main() {
@@ -68,15 +79,34 @@ fn main() {
     player_min_atk: 5,
     player_max_atk: 10
   };
+  let mut item_in_rooms = Rooms_Data {
+    room_title: "".to_string(),
+
+    passed_through_first_set_of_rooms: false,
+
+    picked_up_item_from_closet: false,
+    are_items_in_closet:true,
+
+    picked_up_item_from_kitchen:false,
+    are_items_in_kitchen:true,
+
+    picked_up_item_from_library:false,
+    are_items_in_library:true
+
+  };
+  
   player.player_inv.remove(0);
-  title_screen();
+
+  println!("\x1B[2J\x1B[1;1H"); //clears the screen
+  println!("Welcome to: From Underground, a text adventure");
+
   loop {
     if level == 0 {
       player = scene_0(player);
       level = 1
     }
     if level == 1 {
-      (player, level) = scene_1(player);
+      (player, item_in_rooms, level) = scene_1(player, item_in_rooms, );
     }
     if level == 2 {
       (player, level) = scene_2(player);
@@ -210,7 +240,8 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
       mp: 0,
       min_atk: 4,
       max_atk: 7,
-      magic_atks: vec!("".to_string())
+      magic_atks: vec!("".to_string()),
+      inv: vec!("".to_string())
     };
     loop {
       if turn == "opponent" {
@@ -275,7 +306,8 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
     mp: 0,
     min_atk: 0,
     max_atk: 0,
-    magic_atks: vec!("".to_string())
+    magic_atks: vec!("".to_string()),
+    inv: vec!("".to_string())
   };
   if opponent == "mutant_rat" {
     opponent_stats = Opponent {
@@ -283,7 +315,8 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
       mp: 0,
       min_atk: 4,
       max_atk: 7,
-      magic_atks: vec!("".to_string())
+      magic_atks: vec!("".to_string()),
+      inv: vec!("".to_string())
     };
     opp_max_hp = opponent_stats.hp;
     attacker = "mutant rat";
@@ -355,14 +388,14 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
     }
 }
 
-fn room_change_w_items(chosen_rooms:Rooms, items:Vec<String>, mut player:Player) -> (Player, String, bool) {
+fn room_change(chosen_rooms:Rooms, items:Vec<String>, mut player:Player, mut rooms_data:Rooms_Data, has_items: bool) -> (Player, Rooms_Data, bool) {
   let mut direction:String = "".to_string();
-  let mut room_title: String = "".to_string(); 
   let north_room = chosen_rooms.north_room;
   let south_room = chosen_rooms.south_room;
   let west_room = chosen_rooms.west_room;
   let east_room = chosen_rooms.east_room;
   let mut items_looted = false;
+  if has_items == true  {
     println!("Would you like to: 
 1) loot the room? 
 or 
@@ -381,12 +414,13 @@ or
       items_looted = true;
       println!("");
     }
+  }
   loop {  
     if north_room != "" {println!("[North]: {}", north_room);}
     if south_room != "" {println!("[South]: {}", south_room);}
     if west_room != "" {println!("[West]: {}", west_room);}
     if east_room != "" {println!("[East]: {}", east_room);}
-
+    println!("");
     println!("[Check]: Check Inventory");
     println!("");
     println!("Enter a direction or Check:");
@@ -399,9 +433,9 @@ or
     }
     if direction == "north" || direction == "n" {
       if north_room != "" && north_room != "locked" && north_room != "Locked" && north_room != "blocked" && north_room != "Blocked"{
-        room_title = north_room.clone();
+        rooms_data.room_title = north_room.clone();
         println!("");
-        return (player, room_title, items_looted);
+        return (player, rooms_data, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -411,9 +445,9 @@ or
     
     if direction == "south" || direction == "s" {
       if south_room != "" && south_room != "locked" && south_room != "Locked" && south_room != "blocked" && south_room != "Blocked"{
-        room_title = south_room.clone();
+        rooms_data.room_title = south_room.clone();
         println!("");
-        return (player, room_title, items_looted);
+        return (player, rooms_data, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -423,9 +457,9 @@ or
     
     if direction == "west" || direction == "w" {
       if west_room != "" && west_room != "locked" && west_room != "Locked" && west_room != "blocked" && west_room != "Blocked"{
-        room_title = west_room.clone();
+        rooms_data.room_title = west_room.clone();
         println!("");
-        return (player, room_title, items_looted);
+        return (player, rooms_data, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -435,9 +469,9 @@ or
     
     if direction == "east" || direction == "e" {
       if east_room != "" && east_room != "locked" && east_room != "Locked" && east_room != "blocked" && east_room != "Blocked"{
-        room_title = east_room.clone();
+        rooms_data.room_title = east_room.clone();
         println!("");
-        return (player, room_title, items_looted);
+        return (player, rooms_data, items_looted);
       }else {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
       println!("");
@@ -447,182 +481,125 @@ or
   }
 }
 
-fn room_change(chosen_rooms:Rooms, player:Player) -> (Player, String) {
-  let mut direction:String = "".to_string();
-  let mut room_title: String = "".to_string(); 
-  let north_room = chosen_rooms.north_room;
-  let south_room = chosen_rooms.south_room;
-  let west_room = chosen_rooms.west_room;
-  let east_room = chosen_rooms.east_room;
-  
-  loop {  
-    if north_room != "" {println!("[North]: {}", north_room);}
-    if south_room != "" {println!("[South]: {}", south_room);}
-    if west_room != "" {println!("[West]: {}", west_room);}
-    if east_room != "" {println!("[East]: {}", east_room);}
-    println!("");
-    println!("[Check]: Check Inventory");
-    println!("");
-    println!("Enter a direction or check:");
-    
-    direction = read!();
-    direction = direction.to_lowercase();
-    //checks if the direction chosen is locked, blocked, or empty
-    if direction == "Check" || direction == "check" {
-      check_inv(player.clone());
-    }
-    if direction == "north" || direction == "n" {
-      if north_room != "" && north_room != "locked" && north_room != "Locked" && north_room != "blocked" && north_room != "Blocked"{
-        room_title = north_room.clone();
-        println!("");
-        return (player, room_title)
-      }else {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      println!("");
-      println!("You Can't Go That Way\n");
-      }
-    }
-    
-    if direction == "south" || direction == "s" {
-      if south_room != "" && south_room != "locked" && south_room != "Locked" && south_room != "blocked" && south_room != "Blocked"{
-        room_title = south_room.clone();
-        println!("");
-        return (player, room_title)
-      }else {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      println!("");
-      println!("You Can't Go That Way\n");
-      }
-    }
-    
-    if direction == "west" || direction == "w" {
-      if west_room != "" && west_room != "locked" && west_room != "Locked" && west_room != "blocked" && west_room != "Blocked"{
-        room_title = west_room.clone();
-        println!("");
-        return (player, room_title)
-      }else {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      println!("");
-      println!("You Can't Go That Way\n");
-      }
-    }
-    
-    if direction == "east" || direction == "e" {
-      if east_room != "" && east_room != "locked" && east_room != "Locked" && east_room != "blocked" && east_room != "Blocked"{
-        room_title = east_room.clone();
-        println!("");
-        return (player, room_title)
-      }else {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      println!("");
-      println!("You Can't Go That Way\n");
-      }
-    }
-  }
-}
-
-fn title_screen() {
-  println!("\x1B[2J\x1B[1;1H"); //clears the screen
-  println!("Welcome to: From Underground, a text adventure");
-}
-
-fn entrance(player:Player) -> (Player, String) {
+fn entrance(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
   println!("Room: Entrance");
   println!("");
+  let items = vec!("".to_string());
   let enterance_rooms = Rooms {
       north_room: "Follow".to_string(),
       south_room: "Locked".to_string(),
       west_room: "West Hallway".to_string(),
       east_room: "East Hallway".to_string()
     };
-    let (player, room_title) = room_change(enterance_rooms, player.clone());
-    return (player, room_title);
+    (player, rooms_data, _) = room_change(enterance_rooms, items, player.clone(), rooms_data, false);
+    return (player, rooms_data);
 }
 
-fn east_hallway(player:Player) -> (Player, String) {
+fn entrance_scene_two(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
+  println!("Room: Entrance");
+  println!("");
+  let items = vec!("".to_string());
+  let enterance_rooms = Rooms {
+      north_room: "Operations Room".to_string(),
+      south_room: "Locked".to_string(),
+      west_room: "West Hallway".to_string(),
+      east_room: "East Hallway".to_string()
+  };
+  (player, rooms_data, _) = room_change(enterance_rooms, items, player.clone(), rooms_data, false);
+  return (player, rooms_data);
+}
+
+fn east_hallway(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
   println!("Room: East Hallway");
   println!("");
+  let items = vec!("".to_string());
   let east_hallway_rooms = Rooms {
       north_room: "Library".to_string(),
       south_room: "Kitchen".to_string(),
       west_room: "Return to Entrance".to_string(),
       east_room: "Locked".to_string()
   };
-  let (player, room_title) = room_change(east_hallway_rooms, player.clone());
-  return (player, room_title);
+  (player, rooms_data, _) = room_change(east_hallway_rooms, items, player.clone(), rooms_data, false);
+  return (player, rooms_data);
 }
 
-fn west_hallway(player:Player) -> (Player, String) {
+fn west_hallway(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
   println!("Room: West Hallway");
   println!("");
+  let items = vec!("".to_string());
   let west_hallway_rooms = Rooms {
       north_room: "Supply Closet".to_string(),
       south_room: "Locked".to_string(),
       west_room: "Locked".to_string(),
       east_room: "Return to Entrance".to_string()
   };
-  let (player, room_title) = room_change(west_hallway_rooms, player.clone());
-  return (player, room_title);
+  (player, rooms_data, _) = room_change(west_hallway_rooms, items, player.clone(), rooms_data, false);
+  return (player, rooms_data);
 }
 
-fn supply_closet(mut items_in_closet: bool, mut player:Player) -> (Player, String, bool) {
+fn supply_closet(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
   println!("Room: Supply Closet");
   println!("");
-  let mut room_title = "".to_string();
   let supply_closet_rooms = Rooms {
         north_room: "".to_string(),
         south_room: "Return to West Hallway".to_string(),
         west_room: "".to_string(),
         east_room: "".to_string()
-    };
-    if items_in_closet == true {
-      let items = vec!["Rope".to_string(), "Gemstone".to_string()];
-      (player, room_title, items_in_closet) = room_change_w_items(supply_closet_rooms, items, player.clone());
-    }
-    else {
-      (player, room_title) = room_change(supply_closet_rooms, player.clone());
-    }
-  return (player.clone(), room_title, items_in_closet);
+  };
+  if rooms_data.are_items_in_closet == true {
+    let items = vec!["Rope".to_string(), "Gemstone".to_string()];
+    (player, rooms_data, rooms_data.picked_up_item_from_closet) = room_change(supply_closet_rooms, items, player.clone(), rooms_data, true);
+  }
+  else {
+    let items = vec!("".to_string());
+    (player, rooms_data, rooms_data.picked_up_item_from_closet) = room_change(supply_closet_rooms, items, player.clone(), rooms_data, false);
+  }
+  return (player.clone(), rooms_data);
 }
 
-fn kitchen(mut items_in_kitchen: bool, mut player:Player) -> (Player, String, bool) {
+fn kitchen(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data) {
   println!("Room: Kitchen");
   println!("");
-  let mut room_title = "".to_string();
   let kitchen_rooms = Rooms {
         north_room: "Return to East Hallway".to_string(),
         south_room: "".to_string(),
         west_room: "".to_string(),
         east_room: "".to_string()
     };
-    if items_in_kitchen == true {
+    if rooms_data.are_items_in_kitchen == true {
       let items = vec!["Granny Apple".to_string(), "Leftover Steak".to_string()];
-      (player, room_title, items_in_kitchen) = room_change_w_items(kitchen_rooms, items, player.clone());
+      (player, rooms_data, rooms_data.picked_up_item_from_kitchen) = room_change(kitchen_rooms, items, player.clone(), rooms_data, true);
     }
     else {
-      (player, room_title) = room_change(kitchen_rooms, player.clone());
+      let items = vec!("".to_string());
+      (player, rooms_data, rooms_data.picked_up_item_from_kitchen) = room_change(kitchen_rooms, items, player.clone(), rooms_data, false);
     }
-  return (player.clone(), room_title, items_in_kitchen);
+  return (player.clone(), rooms_data);
 }
 
-fn library(mut items_in_library: bool, mut player:Player) -> (Player, String, bool) {
+fn library(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data) {
   println!("Room: Library");
   println!("");
-  let mut room_title = "".to_string();
-  let kitchen_rooms = Rooms {
+  let library_rooms = Rooms {
         north_room: "".to_string(),
         south_room: "Return to East Hallway".to_string(),
         west_room: "".to_string(),
         east_room: "".to_string()
     };
-    if items_in_library == true {
+    if rooms_data.are_items_in_library == true {
       let items = vec!["Health Potion".to_string(), "Mana Potion".to_string()];
-      (player, room_title, items_in_library) = room_change_w_items(kitchen_rooms, items, player.clone());
+      (player, rooms_data, rooms_data.picked_up_item_from_library) = room_change(library_rooms, items, player.clone(), rooms_data, true);
     }
     else {
-      (player, room_title) = room_change(kitchen_rooms, player.clone());
+      let items = vec!("".to_string());
+      (player, rooms_data, rooms_data.picked_up_item_from_library) = room_change(library_rooms, items, player.clone(), rooms_data, false);
     }
-  return (player.clone(), room_title, items_in_library);
+  return (player.clone(), rooms_data);
+}
+
+fn operations_room(mut player:Player, rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
+
+  return(player, rooms_data);
 }
 
 fn scene_0(mut player:Player) -> Player {
@@ -678,98 +655,85 @@ You seem to be in a cave");
   }
   return player;
 }
+//I need to make it where if items are picked up this function will keep that state [X]
+// and I need to include an if statement checking if Ive already been through this level so I can call this function without the text [X]
+// and an alternative to the follow room_title for "operations_room"
+//clean up the functions for the rooms with items [X]
+fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data, i32) {
+  if rooms_data.passed_through_first_set_of_rooms == false {
+    println!(r#""Follow me I'll show you to operations room.""#);
+    println!("");
+    (player, rooms_data) = entrance(player.clone(), rooms_data);
+  }
 
-fn scene_1(mut player:Player) -> (Player, i32) {
-  println!(r#""Follow me I'll show you to operations room.""#);
-  println!("");
-  let mut room_title = "".to_string();
-  (player, room_title) = entrance(player.clone());
-  let mut picked_up_item_from_closet = false;
-  let mut closet_room_title: String = "".to_string();
-  let mut are_items_in_closet = true;
-  let mut kitchen_room_title: String = "".to_string();
-  let mut picked_up_item_from_kitchen = false;
-  let mut are_items_in_kitchen = true;
-  let mut library_room_title: String = "".to_string();
-  let mut picked_up_item_from_library = false;
-  let mut are_items_in_library = true;
   loop {
-    if room_title == "Follow" {
-      return (player.clone(), 2);
-    }
-
-    if room_title == "West Hallway" || room_title == "Return to West Hallway" {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      (player, room_title) = west_hallway(player.clone());
-    }
-    if room_title == "Supply Closet" {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      if picked_up_item_from_closet == false {
-        are_items_in_closet = true;
+      if rooms_data.room_title == "Follow" {
+        rooms_data.passed_through_first_set_of_rooms = true;
+        return(player.clone(), rooms_data, 2);
       }
 
-      (player, closet_room_title, picked_up_item_from_closet) = supply_closet(are_items_in_closet, player.clone());
-      
-      if closet_room_title == "Return to West Hallway" {
-        room_title = "Return to West Hallway".to_string();
+      if rooms_data.room_title == "Operations Room" {
+        (player, rooms_data) = operations_room(player.clone(), rooms_data);
       }
-      if picked_up_item_from_closet == true {
-        are_items_in_closet = false;
+
+    if rooms_data.room_title == "West Hallway" || rooms_data.room_title == "Return to West Hallway" {
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      (player, rooms_data) = west_hallway(player.clone(), rooms_data);
+    }
+
+    if rooms_data.room_title == "Supply Closet" {
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      if rooms_data.picked_up_item_from_closet == false {
+        rooms_data.are_items_in_closet = true;
       }
-      if picked_up_item_from_closet == false {
-        are_items_in_closet = true;
+      (player, rooms_data) = supply_closet(player.clone(), rooms_data);
+      if rooms_data.picked_up_item_from_closet == true {
+        rooms_data.are_items_in_closet = false;
       }
     }
   
-    if room_title == "East Hallway" || room_title == "Return to East Hallway" {
+    if rooms_data.room_title == "East Hallway" || rooms_data.room_title == "Return to East Hallway" {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      (player, room_title) = east_hallway(player.clone());
+      (player, rooms_data) = east_hallway(player.clone(), rooms_data);
     }
-    if room_title == "Return to Entrance" {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      (player, room_title) = entrance(player.clone());
-    }
-    if room_title == "Kitchen" {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      if picked_up_item_from_kitchen == false {
-        are_items_in_kitchen = true;
-      }
 
-      (player, kitchen_room_title, picked_up_item_from_kitchen) = kitchen(are_items_in_kitchen, player.clone());
-      
-      if kitchen_room_title == "Return to East Hallway" {
-        room_title = "Return to East Hallway".to_string();
+    if rooms_data.room_title == "Return to Entrance" {
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      (player, rooms_data) = entrance(player.clone(), rooms_data);
+    }
+
+    if rooms_data.room_title == "Entrance" {
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      (player, rooms_data) = entrance_scene_two(player.clone(), rooms_data);
+    }
+
+    if rooms_data.room_title == "Kitchen" {
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      if rooms_data.picked_up_item_from_kitchen == false {
+        rooms_data.are_items_in_kitchen = true;
       }
-      if picked_up_item_from_kitchen == true {
-        are_items_in_kitchen = false;
-      }
-      if picked_up_item_from_kitchen == false {
-        are_items_in_kitchen = true;
+      (player, rooms_data) = kitchen(player.clone(), rooms_data);
+      if rooms_data.picked_up_item_from_kitchen == true {
+        rooms_data.are_items_in_kitchen = false;
       }
     }
-    if room_title == "Library" {
-      println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      if picked_up_item_from_library == false {
-        are_items_in_library = true;
-      }
+   
 
-      (player, library_room_title, picked_up_item_from_library) = library(are_items_in_library, player.clone());
-      
-      if library_room_title == "Return to East Hallway" {
-        room_title = "Return to East Hallway".to_string();
+    if rooms_data.room_title == "Library" {
+      println!("\x1B[2J\x1B[1;1H"); //clears the screen
+      if rooms_data.picked_up_item_from_library == false {
+        rooms_data.are_items_in_library = true;
       }
-      if picked_up_item_from_library == true {
-        are_items_in_library = false;
-      }
-      if picked_up_item_from_library == false {
-        are_items_in_library = true;
+      (player, rooms_data) = library(player.clone(), rooms_data);
+      if rooms_data.picked_up_item_from_library == true {
+        rooms_data.are_items_in_library = false;
       }
     }
   }
 }
 
 fn scene_2(mut player:Player) -> (Player, i32) {
-  let mut win_or_lose = false;
+  let mut did_win = false;
   println!("\x1B[2J\x1B[1;1H"); //clears the screen
   println!(r#""Here we are, the operations room.""#);
   println!("You hear the door behind you close.");
@@ -777,14 +741,14 @@ fn scene_2(mut player:Player) -> (Player, i32) {
   println!("He points at a weird animal coming out of the darkness towards the other side of the room.");
   println!("It charges at you");
   println!("");
-  (player, win_or_lose) = tutorial_fight("mutant_rat".to_string(), player.clone());
-  if win_or_lose == false {
+  (player, did_win) = tutorial_fight("mutant_rat".to_string(), player.clone());
+  if did_win == false {
     return (player.clone(), 2)
   }
   println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
   println!(r#""Here, one second, I'm going to turn on the operations screen""#);
   println!("He turns on the screen and it says: ");
-  println!("====================================|
+  println!("|===================================|
 |                                   |
 |            Operations:            |
 |     ERROR: Power not connected.   |
@@ -806,5 +770,6 @@ fn scene_3(player: Player) -> (Player, i32) {
   println!("");
   println!(r#""That rat must've chewed up some of the hardware.""#);
   println!(r#""You look for the hard drive and I'll fix the power.""#);
+  
   return (player, 4);
 }
