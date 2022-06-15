@@ -1,11 +1,12 @@
 use std::io;
 use std::io::prelude::*;
-use std::io::{Write, stdout};
+use std::io::stdout;
 use text_io::read;
 use rand::Rng;
 use dialoguer::{theme::ColorfulTheme, Input};
 use ansi_term::Style;
-use crossterm::{cursor, ExecutableCommand, execute};
+use ansi_term::Colour::Red;
+use crossterm::{cursor, execute};
 
 mod potions;
 use crate::potions::*;
@@ -259,7 +260,7 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
       if turn == "opponent" {
         let mut random_atk = rand::thread_rng();
         let rat_atk: i32 = random_atk.gen_range(mutant_rat.min_atk..(mutant_rat.max_atk + 1));
-        println!("{}", Style::new().bold().paint(format!("The mutant rat attacks you dealing {} damage", rat_atk)));
+        println!("{}", Style::new().bold().paint(format!("The mutant rat attacks you dealing {} damage", Red.paint(rat_atk.to_string()))));
         player.prev_player_hp = player.player_hp;
         player.player_hp = player.player_hp - rat_atk; 
         if player.player_hp < 0 || player.player_hp == 0 {
@@ -267,7 +268,7 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
           println!("{}", Style::new().bold().paint("You died!"));
           return (player, false);
         }
-        println!("You have {}hp/{}hp", player.player_hp, player.player_max_hp);
+        println!("{}", Style::new().bold().paint(format!("You have {}hp/{}hp", Red.paint(player.player_hp.to_string()), Red.paint(player.player_max_hp.to_string()))));
         println!("");
         turn = "player".to_string();
       }
@@ -285,14 +286,14 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
           let mut random_atk = rand::thread_rng();
           let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
           println!("\x1B[2J\x1B[1;1H"); //clears the screen
-          println!("{}", Style::new().bold().paint(format!("You attack the mutant rat dealing {} damage", player_atk)));
+          println!("{}", Style::new().bold().paint(format!("You attack the mutant rat dealing {} damage", Red.paint(player_atk.to_string()))));
           mutant_rat.hp = mutant_rat.hp - player_atk;
           if mutant_rat.hp < 0 || mutant_rat.hp == 0 {
-            println!("{}", Style::new().bold().paint("The mutant rat has 0hp/25hp"));
+            println!("{}", Style::new().bold().paint(format!("The mutant rat has {}hp/{}hp", Red.paint(0.to_string()), Red.paint(25.to_string()))));
             println!("{}", Style::new().bold().paint("You win!"));
             return (player, true);
           }
-          println!("{}", Style::new().bold().paint(format!("The mutant rat has {}hp/25hp", mutant_rat.hp)));
+          println!("{}", Style::new().bold().paint(format!("The mutant rat has {}hp/{}hp", Red.paint(mutant_rat.hp.to_string()), Red.paint(25.to_string()))));
           println!("");
           turn = "opponent".to_string();
         }
@@ -344,11 +345,11 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
         player.prev_player_hp = player.player_hp;
         player.player_hp = player.player_hp - opp_atk; 
         if player.player_hp < 0 || player.player_hp == 0 {
-          println!("{}", Style::new().bold().paint(format!("You have 0hp/{}hp", player.player_max_hp)));
+          println!("{}", Style::new().bold().paint(format!("You have {}hp/{}hp", Red.paint(0.to_string()), Red.paint(player.player_max_hp.to_string()))));
           println!("{}", Style::new().bold().paint("You died!"));
           return (player, false)
         }
-        println!("{}", Style::new().bold().paint(format!("You have {}hp/{}hp", player.player_hp, player.player_max_hp)));
+        println!("{}", Style::new().bold().paint(format!("You have {}hp/{}hp", Red.paint(player.player_hp.to_string()), Red.paint(player.player_max_hp.to_string()))));
         println!("");
         turn = "player".to_string();
       }
@@ -367,14 +368,14 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
           let mut random_atk = rand::thread_rng();
           let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
           println!("\x1B[2J\x1B[1;1H"); //clears the screen
-          println!("{}", Style::new().bold().paint(format!("You attack the {} dealing {} damage",attacker , player_atk)));
+          println!("{}", Style::new().bold().paint(format!("You attack the {} dealing {} damage", attacker, Red.paint(player_atk.to_string()))));
           opponent_stats.hp = opponent_stats.hp - player_atk;
           if opponent_stats.hp < 0 || opponent_stats.hp == 0 {
-            println!("{}", Style::new().bold().paint(format!("The {} has 0hp/{}hp", attacker, opp_max_hp)));
+            println!("{}", Style::new().bold().paint(format!("The {} has {}hp/{}hp", attacker, Red.paint(0.to_string()), Red.paint(opp_max_hp.to_string()))));
             println!("{}", Style::new().bold().paint("You win!"));
             return (player, true);
           }
-          println!("{}", Style::new().bold().paint(format!("The {} has {}hp/{}hp", attacker, opponent_stats.hp, opp_max_hp)));
+          println!("{}", Style::new().bold().paint(format!("The {} has {}hp/{}hp", attacker, Red.paint(opponent_stats.hp.to_string()), Red.paint(opp_max_hp.to_string()))));
           println!("");
           turn = "opponent".to_string();
         }
