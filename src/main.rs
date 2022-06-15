@@ -1,9 +1,12 @@
 use std::io;
 use std::io::prelude::*;
+use std::io::{Write, stdout};
 use text_io::read;
 use rand::Rng;
 use dialoguer::{theme::ColorfulTheme, Input};
 use ansi_term::Style;
+use crossterm::{cursor, ExecutableCommand, execute};
+
 mod potions;
 use crate::potions::*;
 mod food;
@@ -49,10 +52,15 @@ pub struct Player {
 #[derive(Clone)]
 struct RoomsData {
   room_title: String,
+
+  passed_through_scene_3: bool,
+
   picked_up_item_from_closet: bool,
   are_items_in_closet: bool,
+
   picked_up_item_from_kitchen: bool,
   are_items_in_kitchen: bool,
+
   picked_up_item_from_library: bool,
   are_items_in_library: bool
 }
@@ -77,6 +85,8 @@ fn main() {
   let mut rooms_data = RoomsData {
     room_title: "".to_string(),
 
+    passed_through_scene_3: false,
+
     picked_up_item_from_closet: false,
     are_items_in_closet:true,
 
@@ -96,7 +106,7 @@ fn main() {
   loop {
     if level == 0 {
       player = scene_0(player);
-      level = 1
+      level = 2
     }
     if level == 1 {
       println!("{}", Style::new().bold().paint(r#""Follow me I'll show you to the operations room.""#));
@@ -114,9 +124,7 @@ fn main() {
       (player, rooms_data, level) = scene_2(player, rooms_data.clone());
     }
     if level == 3 {
-      println!("{}", Style::new().bold().paint(r#""That rat must've chewed up some of the hardware.""#));
-      println!("{}", Style::new().bold().paint(r#""You look for the hard drive and I'll fix the power.""#));
-      (player, rooms_data, level) = scene_3(player, rooms_data.clone());
+      (player, rooms_data, level) = scene_3(player, rooms_data);
     }
   }
 }
@@ -411,11 +419,13 @@ fn room_change(chosen_rooms:Rooms, items:Vec<String>, mut player:Player, mut roo
   let west_room_prompt = Style::new().bold().paint(format!("[West]: {}", west_room));
   let east_room_prompt = Style::new().bold().paint(format!("[East]: {}", east_room));
   if has_items == true  {
-    println!("Would you like to: 
+    let choice: i32 = Input::with_theme(&ColorfulTheme::default())
+      .with_prompt("Would you like to: 
 1) loot the room? 
-or 
-2) leave?");
-    let choice: i32 = read!();
+2) leave?
+")
+      .interact_text()
+      .unwrap();
     println!("");
 
     if choice == 1 {
@@ -632,9 +642,20 @@ fn operations_room(mut player:Player, mut rooms_data: RoomsData) -> (Player, Roo
 fn rooms_loop(mut player:Player, mut rooms_data:RoomsData) -> (Player, RoomsData) {
   loop {
 		if rooms_data.room_title == "Operations Room" {
-			println!("\x1B[2J\x1B[1;1H"); //clears the screen
-			(player, rooms_data) = operations_room(player.clone(), rooms_data);
-		}
+      if rooms_data.passed_through_scene_3 == false {
+        let mut stdout = stdout();
+        execute!(stdout, cursor::MoveDown(5));
+        println!("{}", Style::new().bold().paint(r#""That rat must've chewed up some of the hardware.""#));
+        println!("{}", Style::new().bold().paint(r#""You look for the hard drive and I'll fix the power.""#));
+        println!("");
+        (player, rooms_data) = operations_room(player.clone(), rooms_data);
+        rooms_data.passed_through_scene_3 = true;
+      }
+      else {
+			  println!("\x1B[2J\x1B[1;1H"); //clears the screen
+			  (player, rooms_data) = operations_room(player.clone(), rooms_data);
+      }
+    }
 
 		if rooms_data.room_title == "West Hallway" || rooms_data.room_title == "Return to West Hallway" {
 			println!("\x1B[2J\x1B[1;1H"); //clears the screen
@@ -823,12 +844,17 @@ fn scene_2(mut player:Player, rooms_data:RoomsData) -> (Player, RoomsData, i32) 
 |     ERROR: No storage drive.      |
 |           Please insert.          |
 |                                   |
-|                                   |
+|      Press Enter to continue:     |
 |                                   |
 |                                   |
 |                                   |
 |===================================|");
-return (player, rooms_data, 3)
+    let mut stdout = stdout();
+    execute!(stdout, cursor::MoveUp(5), cursor::MoveRight(31));
+    let mut stdin = io::stdin();
+    // Read a single byte and discard
+    let _ = stdin.read(&mut [0u8]).unwrap();
+  return (player, rooms_data, 3)
 }
 
 fn scene_3(mut player: Player, mut rooms_data:RoomsData) -> (Player, RoomsData, i32) {
