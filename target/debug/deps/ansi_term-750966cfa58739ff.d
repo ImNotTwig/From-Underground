@@ -1,0 +1,13 @@
+/home/lydia/Documents/rust/From-Underground/target/debug/deps/ansi_term-750966cfa58739ff.rmeta: /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/lib.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/ansi.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/style.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/difference.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/display.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/write.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/windows.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/util.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/debug.rs
+
+/home/lydia/Documents/rust/From-Underground/target/debug/deps/ansi_term-750966cfa58739ff.d: /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/lib.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/ansi.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/style.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/difference.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/display.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/write.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/windows.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/util.rs /home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/debug.rs
+
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/lib.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/ansi.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/style.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/difference.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/display.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/write.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/windows.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/util.rs:
+/home/lydia/.cargo/registry/src/github.com-1ecc6299db9ec823/ansi_term-0.12.1/src/debug.rs:

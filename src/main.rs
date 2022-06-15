@@ -2,6 +2,8 @@ use std::io;
 use std::io::prelude::*;
 use text_io::read;
 use rand::Rng;
+use dialoguer::{theme::ColorfulTheme, Input};
+use ansi_term::Style;
 mod potions;
 use crate::potions::*;
 mod food;
@@ -14,7 +16,6 @@ use crate::food::*;
   //I want an inventory system [x]
   //I want a fighting system [x]
   //I want some kind of mana/health system [x]
-#[derive(Debug)]
 struct Rooms {
   north_room: String,
   south_room: String,
@@ -46,7 +47,7 @@ pub struct Player {
   player_max_atk: i32
 }
 #[derive(Clone)]
-struct Rooms_Data {
+struct RoomsData {
   room_title: String,
   picked_up_item_from_closet: bool,
   are_items_in_closet: bool,
@@ -73,7 +74,7 @@ fn main() {
     player_min_atk: 5,
     player_max_atk: 10
   };
-  let mut rooms_data = Rooms_Data {
+  let mut rooms_data = RoomsData {
     room_title: "".to_string(),
 
     picked_up_item_from_closet: false,
@@ -98,24 +99,23 @@ fn main() {
       level = 1
     }
     if level == 1 {
-      println!(r#""Follow me I'll show you to operations room.""#);
+      println!("{}", Style::new().bold().paint(r#""Follow me I'll show you to the operations room.""#));
       println!("");
       (player, rooms_data, level) = scene_1(player, rooms_data.clone());
     }
     if level == 2 {
       println!("\x1B[2J\x1B[1;1H"); //clears the screen
-      println!(r#""Here we are, the operations room.""#);
-      println!("You hear the door behind you close.");
-      println!(r#""What is that?""#);
-      println!("He points at a weird animal coming out of the darkness towards the other side of the room.");
-      println!("It charges at you");
+      println!("{}", Style::new().bold().paint(r#""Here we are, the operations room.""#));
+      println!("{}", Style::new().bold().paint("You hear the door behind you close."));
+      println!("{}", Style::new().bold().paint(r#""What is that?""#));
+      println!("{}", Style::new().bold().paint("He points at a weird animal coming out of the darkness towards the other side of the room."));
+      println!("{}", Style::new().bold().paint("It charges at you"));
       println!("");
       (player, rooms_data, level) = scene_2(player, rooms_data.clone());
     }
     if level == 3 {
-      println!("");
-      println!(r#""That rat must've chewed up some of the hardware.""#);
-      println!(r#""You look for the hard drive and I'll fix the power.""#);
+      println!("{}", Style::new().bold().paint(r#""That rat must've chewed up some of the hardware.""#));
+      println!("{}", Style::new().bold().paint(r#""You look for the hard drive and I'll fix the power.""#));
       (player, rooms_data, level) = scene_3(player, rooms_data.clone());
     }
   }
@@ -143,15 +143,15 @@ fn check_inv(mut player: Player) -> Player {
     println!("Inventory:");
     let mut a = 1;
     for i in player.player_inv.clone() {
-      println!("{}: {}", a, i);
+      println!("{}: {}", Style::new().italic().paint(a.to_string()), Style::new().italic().paint(i.to_string()));
       a += 1;
     }
     println!("");
-    println!("Would you like to use an item? [y/n]");
+    println!("{}", Style::new().bold().paint("Would you like to use an item? [y/n]"));
     let choice: String = read!();
     let choice = choice.to_lowercase();
     if choice == "yes" || choice == "y" {
-      println!("Which item?");
+      println!("{}", Style::new().bold().paint("Which item?"));
       let mut item_choice: usize = read!();
       item_choice -= 1;
       let item_use_input: String = player.player_inv[item_choice].clone();
@@ -178,15 +178,15 @@ fn check_inv_fight(mut player: Player) -> (Player, bool) {
     println!("Inventory:");
     let mut a = 1;
     for i in player.player_inv.clone() {
-      println!("{}: {}", a, i);
+      println!("{}: {}", Style::new().italic().paint(a.to_string()), Style::new().italic().paint(i.to_string()));
       a += 1;
     }
     println!("");
-    println!("Would you like to use an item? [y/n]");
+    println!("{}", Style::new().bold().paint("Would you like to use an item? [y/n]"));
     let choice: String = read!();
     let choice = choice.to_lowercase();
     if choice == "yes" || choice == "y" {
-      println!("Which item?");
+      println!("{}", Style::new().bold().paint("Which item?"));
       let mut item_choice: usize = read!();
       item_choice -= 1;
       let item_use_input: String = player.player_inv[item_choice].clone();
@@ -251,12 +251,12 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
       if turn == "opponent" {
         let mut random_atk = rand::thread_rng();
         let rat_atk: i32 = random_atk.gen_range(mutant_rat.min_atk..(mutant_rat.max_atk + 1));
-        println!("The mutant rat attacks you dealing {} damage", rat_atk);
+        println!("{}", Style::new().bold().paint(format!("The mutant rat attacks you dealing {} damage", rat_atk)));
         player.prev_player_hp = player.player_hp;
         player.player_hp = player.player_hp - rat_atk; 
         if player.player_hp < 0 || player.player_hp == 0 {
-          println!("You have 0hp/50hp");
-          println!("You died!");
+          println!("{}", Style::new().bold().paint("You have 0hp/50hp"));
+          println!("{}", Style::new().bold().paint("You died!"));
           return (player, false);
         }
         println!("You have {}hp/{}hp", player.player_hp, player.player_max_hp);
@@ -264,24 +264,27 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
         turn = "player".to_string();
       }
       if turn == "player" {
-        println!("Do you want to: 
+        let choice: i32 = Input::with_theme(&ColorfulTheme::default())
+      .with_prompt("Do you want to:
 1) Attack
 2) Use an Item
-3) Run Away");
-        let choice: i32 = read!();
+3) Run Away
+")
+      .interact_text()
+      .unwrap();
         println!("");
         if choice == 1 {
           let mut random_atk = rand::thread_rng();
           let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
           println!("\x1B[2J\x1B[1;1H"); //clears the screen
-          println!("You attack the mutant rat dealing {} damage", player_atk);
+          println!("{}", Style::new().bold().paint(format!("You attack the mutant rat dealing {} damage", player_atk)));
           mutant_rat.hp = mutant_rat.hp - player_atk;
           if mutant_rat.hp < 0 || mutant_rat.hp == 0 {
-            println!("The mutant rat has 0hp/25hp");
-            println!("You win!");
+            println!("{}", Style::new().bold().paint("The mutant rat has 0hp/25hp"));
+            println!("{}", Style::new().bold().paint("You win!"));
             return (player, true);
           }
-          println!("The mutant rat has {}hp/25hp", mutant_rat.hp);
+          println!("{}", Style::new().bold().paint(format!("The mutant rat has {}hp/25hp", mutant_rat.hp)));
           println!("");
           turn = "opponent".to_string();
         }
@@ -292,7 +295,7 @@ fn tutorial_fight(opponent: String, mut player: Player) -> (Player, bool) {
           }  
         }
         if choice == 3 {
-          println!("You can't run away from this fight!");
+          println!("{}", Style::new().bold().paint("You can't run away from this fight!"));
         }
       }
     }
@@ -329,37 +332,41 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
       if turn == "opponent" {
         let mut random_atk = rand::thread_rng();
         let opp_atk: i32 = random_atk.gen_range(opponent_stats.min_atk..(opponent_stats.max_atk + 1));
-        println!("The {} attacks you dealing {} damage",attacker, opp_atk);
+        println!("{}", Style::new().bold().paint(format!("The {} attacks you dealing {} damage",attacker, opp_atk)));
         player.prev_player_hp = player.player_hp;
         player.player_hp = player.player_hp - opp_atk; 
         if player.player_hp < 0 || player.player_hp == 0 {
-          println!("You have 0hp/{}hp", player.player_max_hp);
-          println!("You died!");
+          println!("{}", Style::new().bold().paint(format!("You have 0hp/{}hp", player.player_max_hp)));
+          println!("{}", Style::new().bold().paint("You died!"));
           return (player, false)
         }
-        println!("You have {}hp/{}hp", player.player_hp, player.player_max_hp);
+        println!("{}", Style::new().bold().paint(format!("You have {}hp/{}hp", player.player_hp, player.player_max_hp)));
         println!("");
         turn = "player".to_string();
       }
       if turn == "player" {
-        println!("Do you want to: 
+        let choice: i32 = Input::with_theme(&ColorfulTheme::default())
+        .with_prompt("Do you want to:
 1) Attack
 2) Use an Item
-3) Run Away");
-        let choice: i32 = read!();
+3) Run Away
+")
+        .interact_text()
+        .unwrap();
+
         println!("");
         if choice == 1 {
           let mut random_atk = rand::thread_rng();
           let player_atk: i32 = random_atk.gen_range(player.player_min_atk..(player.player_max_atk + 1));
           println!("\x1B[2J\x1B[1;1H"); //clears the screen
-          println!("You attack the {} dealing {} damage",attacker , player_atk);
+          println!("{}", Style::new().bold().paint(format!("You attack the {} dealing {} damage",attacker , player_atk)));
           opponent_stats.hp = opponent_stats.hp - player_atk;
           if opponent_stats.hp < 0 || opponent_stats.hp == 0 {
-            println!("The {} has 0hp/{}hp", attacker, opp_max_hp);
-            println!("You win!");
+            println!("{}", Style::new().bold().paint(format!("The {} has 0hp/{}hp", attacker, opp_max_hp)));
+            println!("{}", Style::new().bold().paint("You win!"));
             return (player, true);
           }
-          println!("The {} has {}hp/{}hp", attacker, opponent_stats.hp, opp_max_hp);
+          println!("{}", Style::new().bold().paint(format!("The {} has {}hp/{}hp", attacker, opponent_stats.hp, opp_max_hp)));
           println!("");
           turn = "opponent".to_string();
         }
@@ -371,7 +378,7 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
         }
         if choice == 3 {
           if player.player_max_atk > opponent_stats.max_atk {
-            println!("You successfully ran away!");
+            println!("{}", Style::new().bold().paint("You successfully ran away!"));
             return (player, true)
           }
           else {
@@ -379,11 +386,11 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
             let mut rng = rand::thread_rng();
             let escape_chance: i32 = rng.gen_range(1..(strength_difference + 1));
             if escape_chance > strength_difference / 2 {
-              println!("You successfully ran away!");
+              println!("{}", Style::new().bold().paint("You successfully ran away!"));
               return (player, true)
             }
             else {
-              println!("You failed to run away!");
+              println!("{}", Style::new().bold().paint("You failed to run away!"));
               turn = "opponent".to_string();
             }
           }
@@ -392,13 +399,17 @@ fn fight(opponent: String, mut player: Player) -> (Player, bool) {
     }
 }
 
-fn room_change(chosen_rooms:Rooms, items:Vec<String>, mut player:Player, mut rooms_data:Rooms_Data, has_items: bool) -> (Player, Rooms_Data, bool) {
+fn room_change(chosen_rooms:Rooms, items:Vec<String>, mut player:Player, mut rooms_data:RoomsData, has_items: bool) -> (Player, RoomsData, bool) {
   let mut direction:String = "".to_string();
   let north_room = chosen_rooms.north_room;
   let south_room = chosen_rooms.south_room;
   let west_room = chosen_rooms.west_room;
   let east_room = chosen_rooms.east_room;
   let mut items_looted = false;
+  let north_room_prompt = Style::new().bold().paint(format!("[North]: {}", north_room));
+  let south_room_prompt = Style::new().bold().paint(format!("[South]: {}", south_room));
+  let west_room_prompt = Style::new().bold().paint(format!("[West]: {}", west_room));
+  let east_room_prompt = Style::new().bold().paint(format!("[East]: {}", east_room));
   if has_items == true  {
     println!("Would you like to: 
 1) loot the room? 
@@ -420,16 +431,19 @@ or
     }
   }
   loop {  
-    if north_room != "" {println!("[North]: {}", north_room);}
-    if south_room != "" {println!("[South]: {}", south_room);}
-    if west_room != "" {println!("[West]: {}", west_room);}
-    if east_room != "" {println!("[East]: {}", east_room);}
-    println!("");
-    println!("[Check]: Check Inventory");
-    println!("");
-    println!("Enter a direction or Check:");
+    if north_room != "" {println!("{}", north_room_prompt);}
+    if south_room != "" {println!("{}", south_room_prompt);}
+    if west_room != "" {println!("{}", west_room_prompt);}
+    if east_room != "" {println!("{}", east_room_prompt);}
     
-    direction = read!();
+    direction = Input::with_theme(&ColorfulTheme::default())
+      .with_prompt("
+[Check]: Check Inventory
+
+Enter a direction or Check
+")
+      .interact_text()
+      .unwrap();
     direction = direction.to_lowercase();
     //checks if the direction chosen is locked, blocked, or empty
     if direction == "Check" || direction == "check" || direction == "c" || direction == "C" {
@@ -485,8 +499,8 @@ or
   }
 }
 
-fn entrance(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: Entrance");
+fn entrance(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: Entrance"));
   println!("");
   let items = vec!("".to_string());
   let enterance_rooms = Rooms {
@@ -499,8 +513,8 @@ fn entrance(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Dat
     return (player, rooms_data);
 }
 
-fn entrance_scene_two(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: Entrance");
+fn entrance_scene_two(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: Entrance"));
   println!("");
   let items = vec!("".to_string());
   let enterance_rooms = Rooms {
@@ -513,8 +527,8 @@ fn entrance_scene_two(mut player:Player, mut rooms_data: Rooms_Data) -> (Player,
   return (player, rooms_data);
 }
 
-fn east_hallway(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: East Hallway");
+fn east_hallway(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: East Hallway"));
   println!("");
   let items = vec!("".to_string());
   let east_hallway_rooms = Rooms {
@@ -527,8 +541,8 @@ fn east_hallway(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms
   return (player, rooms_data);
 }
 
-fn west_hallway(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: West Hallway");
+fn west_hallway(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: West Hallway"));
   println!("");
   let items = vec!("".to_string());
   let west_hallway_rooms = Rooms {
@@ -541,8 +555,8 @@ fn west_hallway(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms
   return (player, rooms_data);
 }
 
-fn supply_closet(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: Supply Closet");
+fn supply_closet(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: Supply Closet"));
   println!("");
   let supply_closet_rooms = Rooms {
         north_room: "".to_string(),
@@ -561,8 +575,8 @@ fn supply_closet(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Room
   return (player.clone(), rooms_data);
 }
 
-fn kitchen(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: Kitchen");
+fn kitchen(mut player:Player, mut rooms_data:RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: Kitchen"));
   println!("");
   let kitchen_rooms = Rooms {
         north_room: "Return to East Hallway".to_string(),
@@ -581,8 +595,8 @@ fn kitchen(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data)
   return (player.clone(), rooms_data);
 }
 
-fn library(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: Library");
+fn library(mut player:Player, mut rooms_data:RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: Library"));
   println!("");
   let library_rooms = Rooms {
         north_room: "".to_string(),
@@ -601,8 +615,8 @@ fn library(mut player:Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data)
   return (player.clone(), rooms_data);
 }
 //finish this
-fn operations_room(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data) {
-  println!("Room: Operations Room");
+fn operations_room(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData) {
+  println!("{}", Style::new().underline().paint("Room: Operations Room"));
   println!("");
   let items = vec!("".to_string());
   let operation_room_rooms = Rooms {
@@ -615,7 +629,7 @@ fn operations_room(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Ro
   return(player.clone(), rooms_data);
 }
 
-fn rooms_loop(mut player:Player, mut rooms_data:Rooms_Data) -> (Player,Rooms_Data) {
+fn rooms_loop(mut player:Player, mut rooms_data:RoomsData) -> (Player, RoomsData) {
   loop {
 		if rooms_data.room_title == "Operations Room" {
 			println!("\x1B[2J\x1B[1;1H"); //clears the screen
@@ -673,37 +687,39 @@ fn rooms_loop(mut player:Player, mut rooms_data:Rooms_Data) -> (Player,Rooms_Dat
 }
 
 fn scene_0(mut player:Player) -> Player {
-  println!("What is your name?");
-  let player_name: String = read!();
+  let player_name: String = Input::with_theme(&ColorfulTheme::default())
+      .with_prompt("What is your name?")
+      .interact_text()
+      .unwrap();
   player.player_name = player_name;
-  println!("Hello {}, press enter to continue", player.player_name);
+  println!("{}", Style::new().bold().paint("Press enter to continue"));
   
   let mut stdin = io::stdin();
   // Read a single byte and discard
   let _ = stdin.read(&mut [0u8]).unwrap();
   
   println!("\x1B[2J\x1B[1;1H");
-  
-  println!(r#""You were knocked out cold, dude."
-"{} Are you okay?""#, player.player_name);
-  let response: String = read!();
-  
+  let response: String = Input::with_theme(&ColorfulTheme::default())
+      .with_prompt(format!(r#""You were knocked out cold {}, are you okay?""#, player.player_name))
+      .interact_text()
+      .unwrap();
+
   let mut response: String = response.to_lowercase();
   let mut print_text = 0;
 
   while print_text == 0 {
     if response == "y" || response == "yes" {
-      println!(r#""Alright, I'll help you up.""#);
+      println!("{}", Style::new().bold().paint(r#""Alright, I'll help you up.""#));
       print_text = 1;
       break
     }
     else if response == "n" || response =="no" {
-      println!(r#""Are you sure? Do you need help getting up?""#);
+      println!("{}", Style::new().bold().paint(r#""Are you sure? Do you need help getting up?""#));
       print_text = 2;
       break
     }
     if response != "y" && response != "yes" && response != "n" && response != "no" {
-      println!(r#""What?""#);
+      println!("{}", Style::new().bold().paint(r#""What?""#));
       print_text = 0;
     }
     if print_text == 0 {
@@ -713,20 +729,20 @@ fn scene_0(mut player:Player) -> Player {
 
   if print_text == 1 {
     println!("");
-    println!("You stand up and look around. 
-it seems like you're in an underground cave.");
+    println!("{}", Style::new().bold().paint("You stand up and look around. 
+it seems like you're in an underground cave."));
     println!("");
   }
   else {
     println!("");
-    println!("He helps you up and you look around.
-You seem to be in a cave");
+    println!("{}", Style::new().bold().paint("He helps you up and you look around.
+You seem to be in a cave"));
     println!("");
   }
   return player;
 }
 
-fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data, i32) {
+fn scene_1(mut player:Player, mut rooms_data: RoomsData) -> (Player, RoomsData, i32) {
   (player, rooms_data) = entrance(player.clone(), rooms_data);
   // this loops has to be written here because of the if room_title == "Follow" statement, this is because it returns to go to the next scene
   loop {
@@ -788,15 +804,15 @@ fn scene_1(mut player:Player, mut rooms_data: Rooms_Data) -> (Player, Rooms_Data
   }
 }
 
-fn scene_2(mut player:Player, rooms_data:Rooms_Data) -> (Player, Rooms_Data, i32) {
+fn scene_2(mut player:Player, rooms_data:RoomsData) -> (Player, RoomsData, i32) {
   let mut did_win = false;
   (player, did_win) = tutorial_fight("mutant_rat".to_string(), player.clone());
   if did_win == false {
     return (player.clone(), rooms_data, 2)
   }
-  println!(r#""Phew, I was almost worried we were gonna get hurt there.""#);
-  println!(r#""Here, one second, I'm going to turn on the operations screen""#);
-  println!("He turns on the screen and it says: ");
+  println!("{}", Style::new().bold().paint(r#""Phew, I was almost worried we were gonna get hurt there.""#));
+  println!("{}", Style::new().bold().paint(r#""Here, one second, I'm going to turn on the operations screen""#));
+  println!("{}", Style::new().bold().paint("He turns on the screen and it says: "));
   println!("|===================================|
 |                                   |
 |            Operations:            |
@@ -815,7 +831,7 @@ fn scene_2(mut player:Player, rooms_data:Rooms_Data) -> (Player, Rooms_Data, i32
 return (player, rooms_data, 3)
 }
 
-fn scene_3(mut player: Player, mut rooms_data:Rooms_Data) -> (Player, Rooms_Data, i32) {
+fn scene_3(mut player: Player, mut rooms_data:RoomsData) -> (Player, RoomsData, i32) {
   rooms_data.room_title = "Operations Room".to_string();
   (player, rooms_data) = rooms_loop(player, rooms_data);
   return (player, rooms_data, 4);

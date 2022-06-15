@@ -9,3 +9,5 @@ edition = "2021"
 [dependencies]
 text_io = "0.1.10"
 rand = "0.8.5"
+dialoguer = "*"
+ansi_term = "*"
